@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.vedakunamneni.click.controllers.InventoryController"
+            stylesheets="@../styles/ecopantry.css"
+            styleClass="dashboard-background"
+            prefWidth="1280" prefHeight="800">
+
+    <!-- Sidebar -->
+    <left>
+        <VBox spacing="16" alignment="TOP_CENTER" styleClass="sidebar">
+            <padding>
+                <Insets top="30" left="15" bottom="30" right="15"/>
+            </padding>
+            <Label text="🌱 EcoPantry" styleClass="nav-title"/>
+            <Separator />
+            <Button text="Dashboard" styleClass="nav-button" onAction="#goToDashboard"/>
+            <Button text="Inventory" styleClass="nav-button selected"/>
+            <Button text="Recipes" styleClass="nav-button"/>
+            <Button text="Scanner" styleClass="nav-button"/>
+            <Button text="Statistics" styleClass="nav-button"/>
+            <Separator />
+            <Button text="Logout" onAction="#handleLogout" styleClass="nav-button" />
+        </VBox>
+    </left>
+
+    <!-- Inventory List -->
+    <center>
+        <VBox spacing="20" styleClass="main-area dashboard-content">
+            <Label text="Inventory" styleClass="page-title"/>
+            <ScrollPane fitToWidth="true">
+                <VBox spacing="10">
+                    <padding>
+                        <Insets top="10" left="10" bottom="10" right="10"/>
+                    </padding>
+                    <HBox spacing="10" styleClass="food-item"><Label text="🥦 Broccoli"/></HBox>
+                    <HBox spacing="10" styleClass="food-item"><Label text="🍞 Sourdough Bread"/></HBox>
+                    <HBox spacing="10" styleClass="food-item"><Label text="🍌 Bananas"/></HBox>
+                    <HBox spacing="10" styleClass="food-item"><Label text="🥬 Spinach"/></HBox>
+                    <HBox spacing="10" styleClass="food-item"><Label text="🍗 Chicken Breast"/></HBox>
+                    <HBox spacing="10" styleClass="food-item"><Label text="🥛 Milk"/></HBox>
+                    <HBox spacing="10" styleClass="food-item"><Label text="🥚 Eggs"/></HBox>
+                    <HBox spacing="10" styleClass="food-item"><Label text="🥕 Carrots"/></HBox>
+                    <HBox spacing="10" styleClass="food-item"><Label text="🍎 Apples"/></HBox>
+                    <HBox spacing="10" styleClass="food-item"><Label text="🧀 Cheese"/></HBox>
+                    <HBox spacing="10" styleClass="food-item"><Label text="🍚 Rice"/></HBox>
+                    <HBox spacing="10" styleClass="food-item"><Label text="🥫 Beans"/></HBox>
+                    <HBox spacing="10" styleClass="food-item"><Label text="🍤 Shrimp"/></HBox>
+                    <HBox spacing="10" styleClass="food-item"><Label text="🍅 Tomatoes"/></HBox>
+                    <HBox spacing="10" styleClass="food-item"><Label text="🍇 Grapes"/></HBox>
+                </VBox>
+            </ScrollPane>
+        </VBox>
+    </center>
+</BorderPane>

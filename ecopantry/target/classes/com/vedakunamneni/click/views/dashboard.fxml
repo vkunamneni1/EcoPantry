@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.vedakunamneni.click.controllers.DashboardController"
+            stylesheets="@../styles/ecopantry.css"
+            prefWidth="1280" prefHeight="800">
+
+    <!-- Sidebar -->
+    <left>
+        <VBox spacing="16" alignment="TOP_CENTER" styleClass="sidebar">
+            <padding>
+                <Insets top="30" left="15" bottom="30" right="15"/>
+            </padding>
+            <Label text="🌱 EcoPantry" styleClass="nav-title"/>
+            <Separator />
+            <Button text="Dashboard" styleClass="nav-button"/>
+            <Button text="Inventory" styleClass="nav-button" onAction="#goToInventory"/>
+            <Button text="Recipes" styleClass="nav-button"/>
+            <Button text="Scanner" styleClass="nav-button"/>
+            <Button text="Statistics" styleClass="nav-button"/>
+            <Separator />
+            <Button text="Logout" onAction="#handleLogout" styleClass="nav-button" />
+            <Label text="© 2025 EcoPantry" styleClass="footer-label"/>
+        </VBox>
+    </left>
+
+    <!-- Main Content -->
+    <center>
+        <VBox spacing="20" styleClass="main-area">
+            <padding>
+                <Insets top="40" left="40" bottom="40" right="40"/>
+            </padding>
+
+            <VBox spacing="10">
+                <Label fx:id="welcomeLabel" text="Good Morning, Veda!" styleClass="page-title"/>
+                <Label text="Here’s what’s happening in your pantry today." styleClass="subtitle"/>
+            </VBox>
+
+            <HBox spacing="30">
+                <VBox spacing="15" styleClass="card highlight-card">
+                    <Label text="Your Eco-Journey" styleClass="card-title"/>
+                    <ProgressBar fx:id="ecoProgressBar" progress="0.6" prefWidth="300"/>
+                    <Label text="Eco-Sprout → Eco-Warrior" styleClass="card-subtext"/>
+                    <Label fx:id="ecoPointsLabel" text="1,247 Points | 450 more to the next level!" styleClass="card-subtext"/>
+                </VBox>
+
+                <VBox spacing="15" styleClass="card tip-card">
+                    <Label text="Today's Tip" styleClass="card-title"/>
+                    <Label fx:id="tipLabel" wrapText="true" styleClass="card-tip"
+                        text="Store herbs like cilantro in water to keep them fresh!"/>
+                </VBox>
+            </HBox>
+
+            <VBox spacing="20">
+                <Label text="Quick Actions" styleClass="section-title"/>
+                <HBox spacing="20">
+                    <Button text="+ Add an Item" styleClass="action-button"/>
+                    <Button text="📷 Scan a Receipt" styleClass="action-button"/>
+                    <Button text="💡 Get Recipe Ideas" styleClass="action-button"/>
+                </HBox>
+            </VBox>
+        </VBox>
+    </center>
+</BorderPane>
