@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.*?>
+
+<StackPane xmlns:fx="http://javafx.com/fxml"
+           fx:controller="com.vedakunamneni.click.controllers.RegisterUserController"
+           stylesheets="@../styles/ecopantry.css"
+           styleClass="login-background">
+
+    <VBox spacing="15" alignment="CENTER" maxWidth="350" styleClass="login-card">
+        <Label text="Register User" styleClass="hero-title"/>
+
+        <Label text="Username" styleClass="card-subtext"/>
+        <TextField fx:id="registerUsernameField" promptText="Enter your username" styleClass="input-field"/>
+
+        <Label text="Password" styleClass="card-subtext"/>
+        <PasswordField fx:id="registerPasswordField" promptText="Enter your password" styleClass="input-field"/>
+
+        <Button text="Submit" onAction="#createUser" styleClass="hero-button"/>
+        <Label fx:id="feedbackLabel" styleClass="error-label"/>
+
+        <Hyperlink text="Back to Login" onAction="#goBack" styleClass="link"/>
+    </VBox>
+</StackPane>

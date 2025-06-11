@@ -283,3 +283,28 @@
 .food-item:hover {
     -fx-background-color: #e0f2f1;
 }
+
+.scanner-container {
+    -fx-padding: 50;
+}
+
+.drop-zone {
+    -fx-border-color: #10b981;
+    -fx-border-style: dashed;
+    -fx-border-width: 3;
+    -fx-background-color: #f0fdf4;
+    -fx-padding: 40;
+    -fx-background-radius: 16;
+    -fx-cursor: hand;
+}
+
+.drop-text {
+    -fx-text-fill: #065f46;
+    -fx-font-size: 16px;
+    -fx-font-weight: 600;
+}
+
+.ingredient-label {
+    -fx-text-fill: #1f2937;
+    -fx-font-size: 14px;
+}

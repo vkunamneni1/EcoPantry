@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.vedakunamneni.click.controllers.RecipeController"
+            stylesheets="@../styles/ecopantry.css">
+
+    <left>
+        <!-- Copy same sidebar from dashboard.fxml -->
+    </left>
+
+    <center>
+        <VBox spacing="20" padding="40">
+            <Label text="Recommended Recipes" styleClass="page-title"/>
+            <VBox fx:id="recipeBox" spacing="10"/>
+        </VBox>
+    </center>
+</BorderPane>

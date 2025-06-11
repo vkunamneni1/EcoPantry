@@ -1,29 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.geometry.*?>
 
-<BorderPane xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.vedakunamneni.click.controllers.DashboardController"
-            stylesheets="@../styles/ecopantry.css"
-            prefWidth="1280" prefHeight="800">
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane prefHeight="800" prefWidth="1280" stylesheets="@../styles/ecopantry.css" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/23.0.1" fx:controller="com.vedakunamneni.click.controllers.DashboardController">
 
     <!-- Sidebar -->
     <left>
-        <VBox spacing="16" alignment="TOP_CENTER" styleClass="sidebar">
+        <VBox alignment="TOP_CENTER" spacing="16" styleClass="sidebar">
             <padding>
-                <Insets top="30" left="15" bottom="30" right="15"/>
+                <Insets bottom="30" left="15" right="15" top="30" />
             </padding>
-            <Label text="🌱 EcoPantry" styleClass="nav-title"/>
+            <Label styleClass="nav-title" text="🌱 EcoPantry" />
             <Separator />
-            <Button text="Dashboard" styleClass="nav-button"/>
-            <Button text="Inventory" styleClass="nav-button" onAction="#goToInventory"/>
-            <Button text="Recipes" styleClass="nav-button"/>
-            <Button text="Scanner" styleClass="nav-button"/>
-            <Button text="Statistics" styleClass="nav-button"/>
+            <Button styleClass="nav-button selected" text="Dashboard" />
+            <Button onAction="#goToInventory" styleClass="nav-button" text="Inventory" />
+            <Button styleClass="nav-button" text="Recipes" />
+            <Button onAction="#goToScanner" styleClass="nav-button" text="Scanner" />
+            <Button styleClass="nav-button" text="Statistics" />
             <Separator />
-            <Button text="Logout" onAction="#handleLogout" styleClass="nav-button" />
-            <Label text="© 2025 EcoPantry" styleClass="footer-label"/>
+            <Button onAction="#handleLogout" styleClass="nav-button" text="Logout" />
+            <Label styleClass="footer-label" text="JAVA FINAL PROJECT" />
         </VBox>
     </left>
 
@@ -31,35 +34,34 @@
     <center>
         <VBox spacing="20" styleClass="main-area">
             <padding>
-                <Insets top="40" left="40" bottom="40" right="40"/>
+                <Insets bottom="40" left="40" right="40" top="40" />
             </padding>
 
             <VBox spacing="10">
-                <Label fx:id="welcomeLabel" text="Good Morning, Veda!" styleClass="page-title"/>
-                <Label text="Here’s what’s happening in your pantry today." styleClass="subtitle"/>
+                <Label fx:id="welcomeLabel" styleClass="page-title" text="Good Morning, Veda!" />
+                <Label styleClass="subtitle" text="Here’s what’s happening in your pantry today." />
             </VBox>
 
             <HBox spacing="30">
                 <VBox spacing="15" styleClass="card highlight-card">
-                    <Label text="Your Eco-Journey" styleClass="card-title"/>
-                    <ProgressBar fx:id="ecoProgressBar" progress="0.6" prefWidth="300"/>
-                    <Label text="Eco-Sprout → Eco-Warrior" styleClass="card-subtext"/>
-                    <Label fx:id="ecoPointsLabel" text="1,247 Points | 450 more to the next level!" styleClass="card-subtext"/>
+                    <Label styleClass="card-title" text="Your Eco-Journey" />
+                    <ProgressBar fx:id="ecoProgressBar" prefWidth="300" progress="0.6" />
+                    <Label styleClass="card-subtext" text="Eco-Sprout → Eco-Warrior" />
+                    <Label fx:id="ecoPointsLabel" styleClass="card-subtext" text="1,247 Points | 450 more to the next level!" />
                 </VBox>
 
                 <VBox spacing="15" styleClass="card tip-card">
-                    <Label text="Today's Tip" styleClass="card-title"/>
-                    <Label fx:id="tipLabel" wrapText="true" styleClass="card-tip"
-                        text="Store herbs like cilantro in water to keep them fresh!"/>
+                    <Label styleClass="card-title" text="Today's Tip" />
+                    <Label fx:id="tipLabel" styleClass="card-tip" text="Store herbs like cilantro in water to keep them fresh!" wrapText="true" />
                 </VBox>
             </HBox>
 
             <VBox spacing="20">
-                <Label text="Quick Actions" styleClass="section-title"/>
+                <Label styleClass="section-title" text="Quick Actions" />
                 <HBox spacing="20">
-                    <Button text="+ Add an Item" styleClass="action-button"/>
-                    <Button text="📷 Scan a Receipt" styleClass="action-button"/>
-                    <Button text="💡 Get Recipe Ideas" styleClass="action-button"/>
+                    <Button onAction="#goToInventory" styleClass="action-button" text="+ Add an Item" />
+                    <Button onAction="#goToScanner" styleClass="action-button" text="📷 Scan a Receipt" />
+                    <Button styleClass="action-button" text="💡 Get Recipe Ideas" />
                 </HBox>
             </VBox>
         </VBox>
