@@ -1,2 +1,0 @@
-# EcoPantry
-## JAVA FINAL PROJECT
