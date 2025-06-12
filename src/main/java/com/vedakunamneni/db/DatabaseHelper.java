@@ -15,7 +15,7 @@ public class DatabaseHelper {
             Statement stmt = conn.createStatement();
             stmt.execute("CREATE TABLE IF NOT EXISTS users (email TEXT PRIMARY KEY, password TEXT)");
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("Error initializing database: " + e.getMessage());
         }
     }
 
@@ -28,12 +28,27 @@ public class DatabaseHelper {
             ResultSet rs = pstmt.executeQuery();
             return rs.next(); // User found
         } catch (SQLException e) {
-            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public static boolean userExists(String email) {
+        String sql = "SELECT 1 FROM users WHERE email = ?";
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, email);
+            ResultSet rs = pstmt.executeQuery();
+            return rs.next();
+        } catch (SQLException e) {
             return false;
         }
     }
 
     public static boolean registerUser(String email, String password) {
+        if (userExists(email)) {
+            return false;
+        }
+
         String sql = "INSERT INTO users (email, password) VALUES (?, ?)";
         try (Connection conn = DriverManager.getConnection(DB_URL);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Hyperlink?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
@@ -14,7 +15,15 @@
         <Label styleClass="hero-title" text="Login to EcoPantry" />
 
         <TextField fx:id="emailField" promptText="Username" styleClass="input-field" />
-        <PasswordField fx:id="passwordField" promptText="Password" styleClass="input-field" />
+        
+        <!-- Password Stack -->
+        <VBox spacing="5">
+            <StackPane>
+                <PasswordField fx:id="passwordField" promptText="Password" styleClass="input-field" />
+                <TextField fx:id="passwordFieldVisible" promptText="Password" styleClass="input-field" visible="false" managed="false" />
+            </StackPane>
+            <CheckBox fx:id="showPasswordCheckBox" text="Show password" onAction="#togglePasswordVisibility" />
+        </VBox>
 
         <Button onAction="#handleLogin" styleClass="hero-button" text="Login" />
         <Label fx:id="errorLabel" styleClass="error-label" />

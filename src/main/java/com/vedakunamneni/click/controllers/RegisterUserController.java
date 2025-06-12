@@ -9,6 +9,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.paint.Color;
 
 public class RegisterUserController {
     @FXML
@@ -21,13 +22,35 @@ public class RegisterUserController {
     private Label feedbackLabel;
 
     @FXML
-    private void createUser() throws IOException {
-        String username = registerUsernameField.getText();
+    private void createUser() {
+        String username = registerUsernameField.getText().trim();
         String password = registerPasswordField.getText().trim();
 
-        DatabaseHelper.registerUser(username, password);
+        if (username.isEmpty() || password.isEmpty()) {
+            feedbackLabel.setText("Please fill in all fields!");
+            feedbackLabel.setTextFill(Color.RED);
+            return;
+        }
 
-        feedbackLabel.setText("Account Created! Return to Login!");
+        if (DatabaseHelper.userExists(username)) {
+            feedbackLabel.setText("Username already exists! Please try a different one.");
+            feedbackLabel.setTextFill(Color.RED);
+            registerUsernameField.clear();
+            registerPasswordField.clear();
+            registerUsernameField.requestFocus();
+            return;
+        }
+
+        if (DatabaseHelper.registerUser(username, password)) {
+            feedbackLabel.setText("Account Created! Return to Login!");
+            feedbackLabel.setTextFill(Color.GREEN);
+        } else {
+            feedbackLabel.setText("Registration failed. Please try again.");
+            feedbackLabel.setTextFill(Color.RED);
+            registerUsernameField.clear();
+            registerPasswordField.clear();
+            registerUsernameField.requestFocus();
+        }
     }
 
     @FXML

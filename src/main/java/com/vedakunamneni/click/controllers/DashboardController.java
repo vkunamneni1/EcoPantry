@@ -63,6 +63,4 @@ public class DashboardController {
     private void goToRecipes() throws IOException {
         App.setRoot("recipe");
     }
-
-
 }
