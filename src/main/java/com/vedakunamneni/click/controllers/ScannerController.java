@@ -270,6 +270,14 @@ public class ScannerController {
         App.setRoot("inventory");
     }
 
+    @FXML private void goToRecipes() throws IOException {
+        App.setRoot("recipe");
+    }
+
+    @FXML private void goToStatistics() throws IOException {
+        App.setRoot("statistics");
+    }
+
     @FXML private void handleLogout() throws IOException {
         App.setRoot("start");
     }

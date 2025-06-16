@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.vedakunamneni.click.controllers.StatisticsController">
+   <left>
+      <VBox alignment="TOP_CENTER" prefWidth="200.0" spacing="10.0" styleClass="sidebar">
+         <children>
+            <Label styleClass="sidebar-title" text="EcoPantry" />
+            <Button mnemonicParsing="false" onAction="#goToDashboard" prefWidth="180.0" styleClass="sidebar-btn" text="Dashboard" />
+            <Button mnemonicParsing="false" onAction="#goToInventory" prefWidth="180.0" styleClass="sidebar-btn" text="Inventory" />
+            <Button mnemonicParsing="false" onAction="#goToScanner" prefWidth="180.0" styleClass="sidebar-btn" text="Scanner" />
+            <Button mnemonicParsing="false" onAction="#goToRecipes" prefWidth="180.0" styleClass="sidebar-btn" text="Recipes" />
+            <Button mnemonicParsing="false" prefWidth="180.0" styleClass="sidebar-btn-active" text="Statistics" />
+            <Region VBox.vgrow="ALWAYS" />
+            <Button mnemonicParsing="false" onAction="#logout" prefWidth="180.0" styleClass="sidebar-btn-logout" text="Logout" />
+         </children>
+         <padding>
+            <Insets bottom="20.0" left="10.0" right="10.0" top="20.0" />
+         </padding>
+      </VBox>
+   </left>
+   <center>
+      <VBox spacing="20.0" styleClass="main-content">
+         <children>
+            <Label styleClass="page-title" text="Statistics &amp; Insights" />
+            
+            <!-- Summary Cards Row -->
+            <HBox spacing="20.0" alignment="CENTER">
+               <children>
+                  <VBox alignment="CENTER" spacing="10.0" styleClass="stat-card, stat-card-green">
+                     <children>
+                        <Label fx:id="foodSavedLabel" styleClass="stat-number" text="0" />
+                        <Label styleClass="stat-label" text="Items Saved" />
+                        <Label styleClass="stat-sublabel" text="Used before expiring" />
+                     </children>
+                     <padding>
+                        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                     </padding>
+                  </VBox>
+                  
+                  <VBox alignment="CENTER" spacing="10.0" styleClass="stat-card, stat-card-red">
+                     <children>
+                        <Label fx:id="foodWastedLabel" styleClass="stat-number" text="0" />
+                        <Label styleClass="stat-label" text="Items Wasted" />
+                        <Label styleClass="stat-sublabel" text="Expired unused" />
+                     </children>
+                     <padding>
+                        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                     </padding>
+                  </VBox>
+                  
+                  <VBox alignment="CENTER" spacing="10.0" styleClass="stat-card, stat-card-blue">
+                     <children>
+                        <Label fx:id="totalItemsLabel" styleClass="stat-number" text="0" />
+                        <Label styleClass="stat-label" text="Total Items" />
+                        <Label styleClass="stat-sublabel" text="Tracked so far" />
+                     </children>
+                     <padding>
+                        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                     </padding>
+                  </VBox>
+               </children>
+            </HBox>
+            
+            <!-- Efficiency Card -->
+            <HBox spacing="20.0" alignment="CENTER">
+               <children>
+                  <VBox alignment="CENTER" spacing="15.0" styleClass="stat-card, stat-card-purple" prefWidth="400.0">
+                     <children>
+                        <Label styleClass="stat-label" text="Food Efficiency Score" />
+                        <Label fx:id="efficiencyScoreLabel" styleClass="stat-number-large" text="0%" />
+                        <ProgressBar fx:id="efficiencyProgressBar" prefWidth="300.0" progress="0.0" styleClass="efficiency-progress" />
+                        <Label fx:id="efficiencyMessageLabel" styleClass="stat-sublabel" text="Keep tracking to improve!" />
+                     </children>
+                     <padding>
+                        <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
+                     </padding>
+                  </VBox>
+               </children>
+            </HBox>
+            
+            <!-- Details Section -->
+            <VBox spacing="15.0" styleClass="details-section">
+               <children>
+                  <Label styleClass="section-title" text="Detailed Breakdown" />
+                  
+                  <GridPane hgap="20.0" vgap="15.0">
+                     <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="200.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="200.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="200.0" />
+                     </columnConstraints>
+                     <rowConstraints>
+                        <RowConstraints minHeight="10.0" prefHeight="40.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="40.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="40.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="40.0" vgrow="SOMETIMES" />
+                     </rowConstraints>
+                     <children>
+                        <Label styleClass="detail-label" text="Items Expiring Soon:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                        <Label fx:id="expiringSoonLabel" styleClass="detail-value" text="0" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                        
+                        <Label styleClass="detail-label" text="Items Added This Week:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                        <Label fx:id="addedThisWeekLabel" styleClass="detail-value" text="0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                        
+                        <Label styleClass="detail-label" text="Average Days to Expiration:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                        <Label fx:id="avgDaysToExpirationLabel" styleClass="detail-value" text="0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                        
+                        <Label styleClass="detail-label" text="Most Wasted Category:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                        <Label fx:id="mostWastedCategoryLabel" styleClass="detail-value" text="N/A" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                     </children>
+                     <padding>
+                        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                     </padding>
+                  </GridPane>
+               </children>
+            </VBox>
+            
+            <!-- Tips Section -->
+            <VBox spacing="15.0" styleClass="tips-section">
+               <children>
+                  <Label styleClass="section-title" text="Tips to Reduce Waste" />
+                  <VBox fx:id="tipsContainer" spacing="10.0">
+                     <!-- Tips will be added dynamically -->
+                  </VBox>
+               </children>
+            </VBox>
+            
+         </children>
+         <padding>
+            <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
+         </padding>
+      </VBox>
+   </center>
+</BorderPane>

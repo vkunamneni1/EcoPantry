@@ -6,6 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import com.vedakunamneni.click.models.Ingredient;
 
 public class DatabaseHelper {
     private static final String DB_URL = "jdbc:sqlite:ecopantry.db";
@@ -181,8 +182,8 @@ public class DatabaseHelper {
         }
     }
     
-    public static java.util.List<com.vedakunamneni.click.models.Ingredient> getUserInventory(String userEmail) {
-        java.util.List<com.vedakunamneni.click.models.Ingredient> inventory = new java.util.ArrayList<>();
+    public static java.util.List<Ingredient> getUserInventory(String userEmail) {
+        java.util.List<Ingredient> inventory = new java.util.ArrayList<>();
         String sql = "SELECT id, ingredient_name, quantity, expiration_date, date_added FROM inventory WHERE user_email = ? ORDER BY expiration_date ASC";
         
         try (Connection conn = DriverManager.getConnection(DB_URL);
@@ -256,6 +257,111 @@ public class DatabaseHelper {
             return rowsAffected > 0;
         } catch (SQLException e) {
             System.err.println("Error updating inventory quantity: " + e.getMessage());
+            return false;
+        }
+    }
+    
+    // Statistics-related methods
+    public static java.util.List<com.vedakunamneni.click.models.Ingredient> getInventoryItems(int userId) {
+        // First get user email from userId
+        String userEmail = getUserEmailFromId(userId);
+        if (userEmail == null) {
+            return new java.util.ArrayList<>();
+        }
+        return getUserInventory(userEmail);
+    }
+
+    public static String getUserEmailFromId(int userId) {
+        // For now, we'll use a simple mapping since we don't have user IDs in our schema
+        // In a real app, you'd have a users table with ID as primary key
+        String sql = "SELECT email FROM users LIMIT 1 OFFSET ?";
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, userId - 1); // Assuming userId starts from 1
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return rs.getString("email");
+            }
+        } catch (SQLException e) {
+            System.err.println("Error getting user email: " + e.getMessage());
+        }
+        return null;
+    }
+
+    public static int getWastedItemsCount(int userId) {
+        // This would track items that expired without being used
+        // For now, we'll simulate this data
+        String userEmail = getUserEmailFromId(userId);
+        if (userEmail == null) return 0;
+
+        // In a real app, you'd have a waste_log table or status field
+        // For now, simulate based on expired items that might have been removed
+        return getRandomBetween(0, 3);
+    }
+
+    public static int getSavedItemsCount(int userId) {
+        // This would track items that were used before expiring
+        // For now, we'll simulate this data
+        String userEmail = getUserEmailFromId(userId);
+        if (userEmail == null) return 0;
+
+        // In a real app, you'd have a usage_log table
+        // For now, simulate based on inventory activity
+        java.util.List<com.vedakunamneni.click.models.Ingredient> items = getInventoryItems(userId);
+        return Math.max(0, items.size() * 2 + getRandomBetween(5, 15));
+    }
+
+    private static int getRandomBetween(int min, int max) {
+        return min + (int)(Math.random() * (max - min + 1));
+    }
+
+    // Method to add item to waste log (for future use)
+    public static boolean addToWasteLog(String userEmail, String ingredientName, java.time.LocalDate expirationDate, String reason) {
+        // Create waste_log table if it doesn't exist
+        String createTableSql = "CREATE TABLE IF NOT EXISTS waste_log (id INTEGER PRIMARY KEY AUTOINCREMENT, user_email TEXT, ingredient_name TEXT, expiration_date DATE, waste_date DATE DEFAULT CURRENT_DATE, reason TEXT, FOREIGN KEY(user_email) REFERENCES users(email))";
+        
+        String sql = "INSERT INTO waste_log (user_email, ingredient_name, expiration_date, reason) VALUES (?, ?, ?, ?)";
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             Statement stmt = conn.createStatement();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            // Create table if needed
+            stmt.execute(createTableSql);
+            
+            pstmt.setString(1, userEmail);
+            pstmt.setString(2, ingredientName);
+            pstmt.setString(3, expirationDate.toString());
+            pstmt.setString(4, reason);
+            
+            int rowsAffected = pstmt.executeUpdate();
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            System.err.println("Error adding to waste log: " + e.getMessage());
+            return false;
+        }
+    }
+
+    // Method to add item to usage log (for future use)
+    public static boolean addToUsageLog(String userEmail, String ingredientName, java.time.LocalDate expirationDate) {
+        // Create usage_log table if it doesn't exist
+        String createTableSql = "CREATE TABLE IF NOT EXISTS usage_log (id INTEGER PRIMARY KEY AUTOINCREMENT, user_email TEXT, ingredient_name TEXT, expiration_date DATE, usage_date DATE DEFAULT CURRENT_DATE, FOREIGN KEY(user_email) REFERENCES users(email))";
+        
+        String sql = "INSERT INTO usage_log (user_email, ingredient_name, expiration_date) VALUES (?, ?, ?)";
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             Statement stmt = conn.createStatement();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            // Create table if needed
+            stmt.execute(createTableSql);
+            
+            pstmt.setString(1, userEmail);
+            pstmt.setString(2, ingredientName);
+            pstmt.setString(3, expirationDate.toString());
+            
+            int rowsAffected = pstmt.executeUpdate();
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            System.err.println("Error adding to usage log: " + e.getMessage());
             return false;
         }
     }

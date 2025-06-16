@@ -151,4 +151,14 @@ public class InventoryController implements Initializable {
     private void goToScanner() throws IOException {
         App.setRoot("scanner");
     }
+
+    @FXML
+    private void goToRecipes() throws IOException {
+        App.setRoot("recipe");
+    }
+
+    @FXML
+    private void goToStatistics() throws IOException {
+        App.setRoot("statistics");
+    }
 }

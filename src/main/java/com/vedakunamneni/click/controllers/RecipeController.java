@@ -278,6 +278,11 @@ public class RecipeController implements Initializable {
     }
 
     @FXML
+    private void goToStatistics() throws IOException {
+        App.setRoot("statistics");
+    }
+
+    @FXML
     private void handleLogout() throws IOException {
         SessionManager.logout();
         App.setRoot("start");

@@ -20,7 +20,7 @@
             <Button text="Inventory" styleClass="nav-button" onAction="#goToInventory"/>
             <Button text="Recipes" styleClass="nav-button selected"/>
             <Button text="Scanner" styleClass="nav-button" onAction="#goToScanner"/>
-            <Button text="Statistics" styleClass="nav-button"/>
+            <Button text="Statistics" styleClass="nav-button" onAction="#goToStatistics"/>
             <Separator />
             <Button text="Logout" onAction="#handleLogout" styleClass="nav-button"/>
             <Label text="© 2025 EcoPantry" styleClass="footer-label"/>

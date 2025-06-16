@@ -79,4 +79,9 @@ public class DashboardController {
     private void goToRecipes() throws IOException {
         App.setRoot("recipe");
     }
+
+    @FXML
+    private void goToStatistics() throws IOException {
+        App.setRoot("statistics");
+    }
 }

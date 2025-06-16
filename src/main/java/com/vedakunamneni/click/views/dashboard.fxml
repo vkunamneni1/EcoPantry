@@ -23,7 +23,7 @@
             <Button onAction="#goToInventory" styleClass="nav-button" text="Inventory" />
             <Button onAction="#goToRecipes" styleClass="nav-button" text="Recipes" />
             <Button onAction="#goToScanner" styleClass="nav-button" text="Scanner" />
-            <Button styleClass="nav-button" text="Statistics" />
+            <Button onAction="#goToStatistics" styleClass="nav-button" text="Statistics" />
             <Separator />
             <Button onAction="#handleLogout" styleClass="nav-button" text="Logout" />
             <Label styleClass="footer-label" text="JAVA FINAL PROJECT" />
