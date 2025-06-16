@@ -34,4 +34,8 @@ public class SessionManager {
         // Capitalize first letter of username
         return currentUser.substring(0, 1).toUpperCase() + currentUser.substring(1);
     }
+    
+    public static void clearSession() {
+        currentUser = null;
+    }
 }

@@ -34,8 +34,19 @@
             <VBox fx:id="dropZone" styleClass="drop-zone" alignment="CENTER">
                 <Label text="Drag and Drop a file here or click to upload" styleClass="drop-text"/>
             </VBox>
-            <VBox fx:id="ingredientsBox" spacing="10"/>
-            <Button text="Add to Inventory" styleClass="action-button"/>
+            
+            <!-- Ingredients Section -->
+            <VBox fx:id="ingredientsSection" spacing="15" visible="false" managed="false">
+                <Label text="Detected Ingredients:" styleClass="section-title"/>
+                <ScrollPane prefHeight="300" fitToWidth="true">
+                    <VBox fx:id="ingredientsBox" spacing="10"/>
+                </ScrollPane>
+                <HBox spacing="15" alignment="CENTER">
+                    <Button fx:id="addSelectedButton" text="Add Selected to Inventory" styleClass="action-button" onAction="#addSelectedToInventory"/>
+                    <Button text="Select All" styleClass="secondary-button" onAction="#selectAllIngredients"/>
+                    <Button text="Clear All" styleClass="secondary-button" onAction="#clearAllIngredients"/>
+                </HBox>
+            </VBox>
         </VBox>
     </center>
 </BorderPane>

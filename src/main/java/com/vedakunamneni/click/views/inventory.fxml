@@ -30,27 +30,13 @@
     <!-- Inventory List -->
     <center>
         <VBox spacing="20" styleClass="main-area dashboard-content">
-            <Label text="Inventory" styleClass="page-title"/>
+            <Label text="My Pantry Inventory" styleClass="page-title"/>
             <ScrollPane fitToWidth="true">
-                <VBox spacing="10">
+                <VBox fx:id="inventoryContainer" spacing="10">
                     <padding>
                         <Insets top="30" left="15" bottom="30" right="15"/>
                     </padding>
-                    <HBox spacing="10" styleClass="food-item"><Label text="🥦 Broccoli"/></HBox>
-                    <HBox spacing="10" styleClass="food-item"><Label text="🍞 Sourdough Bread"/></HBox>
-                    <HBox spacing="10" styleClass="food-item"><Label text="🍌 Bananas"/></HBox>
-                    <HBox spacing="10" styleClass="food-item"><Label text="🥬 Spinach"/></HBox>
-                    <HBox spacing="10" styleClass="food-item"><Label text="🍗 Chicken Breast"/></HBox>
-                    <HBox spacing="10" styleClass="food-item"><Label text="🥛 Milk"/></HBox>
-                    <HBox spacing="10" styleClass="food-item"><Label text="🥚 Eggs"/></HBox>
-                    <HBox spacing="10" styleClass="food-item"><Label text="🥕 Carrots"/></HBox>
-                    <HBox spacing="10" styleClass="food-item"><Label text="🍎 Apples"/></HBox>
-                    <HBox spacing="10" styleClass="food-item"><Label text="🧀 Cheese"/></HBox>
-                    <HBox spacing="10" styleClass="food-item"><Label text="🍚 Rice"/></HBox>
-                    <HBox spacing="10" styleClass="food-item"><Label text="🥫 Beans"/></HBox>
-                    <HBox spacing="10" styleClass="food-item"><Label text="🍤 Shrimp"/></HBox>
-                    <HBox spacing="10" styleClass="food-item"><Label text="🍅 Tomatoes"/></HBox>
-                    <HBox spacing="10" styleClass="food-item"><Label text="🍇 Grapes"/></HBox>
+                    <!-- Dynamic inventory items will be added here -->
                 </VBox>
             </ScrollPane>
         </VBox>

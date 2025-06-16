@@ -17,6 +17,9 @@ public class DatabaseHelper {
             // First create the table if it doesn't exist
             stmt.execute("CREATE TABLE IF NOT EXISTS users (email TEXT PRIMARY KEY, password TEXT)");
             
+            // Create inventory table
+            stmt.execute("CREATE TABLE IF NOT EXISTS inventory (id INTEGER PRIMARY KEY AUTOINCREMENT, user_email TEXT, ingredient_name TEXT, quantity INTEGER DEFAULT 1, date_added DATETIME DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY(user_email) REFERENCES users(email))");
+            
             // Check if security_question and security_answer columns exist, if not add them
             ResultSet rs = stmt.executeQuery("PRAGMA table_info(users)");
             boolean hasSecurityQuestion = false;
@@ -140,5 +143,78 @@ public class DatabaseHelper {
             System.err.println("Error getting user password: " + e.getMessage());
         }
         return null;
+    }
+    
+    // Inventory management methods
+    public static boolean addIngredientToInventory(String userEmail, String ingredientName, int quantity) {
+        // Check if ingredient already exists, if so update quantity
+        String checkSql = "SELECT quantity FROM inventory WHERE user_email = ? AND ingredient_name = ?";
+        String updateSql = "UPDATE inventory SET quantity = quantity + ? WHERE user_email = ? AND ingredient_name = ?";
+        String insertSql = "INSERT INTO inventory (user_email, ingredient_name, quantity) VALUES (?, ?, ?)";
+        
+        try (Connection conn = DriverManager.getConnection(DB_URL)) {
+            // Check if ingredient exists
+            try (PreparedStatement checkStmt = conn.prepareStatement(checkSql)) {
+                checkStmt.setString(1, userEmail);
+                checkStmt.setString(2, ingredientName);
+                ResultSet rs = checkStmt.executeQuery();
+                
+                if (rs.next()) {
+                    // Update existing ingredient
+                    try (PreparedStatement updateStmt = conn.prepareStatement(updateSql)) {
+                        updateStmt.setInt(1, quantity);
+                        updateStmt.setString(2, userEmail);
+                        updateStmt.setString(3, ingredientName);
+                        return updateStmt.executeUpdate() > 0;
+                    }
+                } else {
+                    // Insert new ingredient
+                    try (PreparedStatement insertStmt = conn.prepareStatement(insertSql)) {
+                        insertStmt.setString(1, userEmail);
+                        insertStmt.setString(2, ingredientName);
+                        insertStmt.setInt(3, quantity);
+                        return insertStmt.executeUpdate() > 0;
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error adding ingredient to inventory: " + e.getMessage());
+            return false;
+        }
+    }
+    
+    public static java.util.List<String> getUserInventory(String userEmail) {
+        java.util.List<String> inventory = new java.util.ArrayList<>();
+        String sql = "SELECT ingredient_name, quantity FROM inventory WHERE user_email = ? ORDER BY ingredient_name";
+        
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, userEmail);
+            ResultSet rs = pstmt.executeQuery();
+            
+            while (rs.next()) {
+                String ingredient = rs.getString("ingredient_name");
+                int quantity = rs.getInt("quantity");
+                inventory.add(ingredient + " (x" + quantity + ")");
+            }
+        } catch (SQLException e) {
+            System.err.println("Error getting user inventory: " + e.getMessage());
+        }
+        
+        return inventory;
+    }
+    
+    public static boolean removeIngredientFromInventory(String userEmail, String ingredientName) {
+        String sql = "DELETE FROM inventory WHERE user_email = ? AND ingredient_name = ?";
+        
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, userEmail);
+            pstmt.setString(2, ingredientName);
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.err.println("Error removing ingredient from inventory: " + e.getMessage());
+            return false;
+        }
     }
 }
