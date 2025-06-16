@@ -552,3 +552,20 @@
     -fx-scale-x: 1.02;
     -fx-scale-y: 1.02;
 }
+
+/* Generate Password Button */
+.generate-password-btn {
+    -fx-background-color: #8b5cf6;
+    -fx-text-fill: white;
+    -fx-font-size: 12px;
+    -fx-padding: 8 15;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+    -fx-font-weight: 600;
+    -fx-min-width: 80;
+}
+
+.generate-password-btn:hover {
+    -fx-background-color: #7c3aed;
+    -fx-effect: dropshadow(gaussian, rgba(139,92,246,0.3), 6, 0.1, 0, 2);
+}

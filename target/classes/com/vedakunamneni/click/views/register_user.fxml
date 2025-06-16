@@ -14,8 +14,13 @@
         <Label text="Username" styleClass="card-subtext"/>
         <TextField fx:id="registerUsernameField" promptText="Enter your username" styleClass="input-field"/>
 
-        <Label text="Password" styleClass="card-subtext"/>
-        <PasswordField fx:id="registerPasswordField" promptText="Enter your password" styleClass="input-field"/>
+        <Label text="Password (min 6 characters)" styleClass="card-subtext"/>
+        <HBox spacing="10" alignment="CENTER">
+            <PasswordField fx:id="registerPasswordField" promptText="Enter your password (min 6 chars)" styleClass="input-field" prefWidth="200"/>
+            <TextField fx:id="registerPasswordVisibleField" promptText="Generated password will appear here" styleClass="input-field" prefWidth="200" visible="false" managed="false"/>
+            <Button fx:id="generatePasswordButton" text="Generate" onAction="#generatePassword" styleClass="generate-password-btn"/>
+            <Button fx:id="togglePasswordButton" text="👁" onAction="#togglePasswordVisibility" styleClass="eye-button" visible="false" managed="false"/>
+        </HBox>
 
         <Label text="Security Question" styleClass="card-subtext"/>
         <ComboBox fx:id="securityQuestionComboBox" promptText="Choose a security question" styleClass="input-field"/>

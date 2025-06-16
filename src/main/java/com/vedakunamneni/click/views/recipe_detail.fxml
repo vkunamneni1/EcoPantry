@@ -90,10 +90,13 @@
                 <!-- Action Buttons -->
                 <HBox spacing="15" alignment="CENTER">
                     <Button text="🛒 Add Missing Ingredients to Shopping List" 
+                            onAction="#addMissingIngredientsToShoppingList"
                             style="-fx-font-size: 14px; -fx-background-color: #FF9800; -fx-text-fill: white; -fx-padding: 12 20; -fx-background-radius: 5;"/>
-                    <Button text="⭐ Favorite Recipe" 
+                    <Button fx:id="favoriteButton" text="⭐ Favorite Recipe" 
+                            onAction="#favoriteRecipe"
                             style="-fx-font-size: 14px; -fx-background-color: #E91E63; -fx-text-fill: white; -fx-padding: 12 20; -fx-background-radius: 5;"/>
                     <Button text="📋 Copy Recipe" 
+                            onAction="#copyRecipe"
                             style="-fx-font-size: 14px; -fx-background-color: #2196F3; -fx-text-fill: white; -fx-padding: 12 20; -fx-background-radius: 5;"/>
                 </HBox>
             </VBox>

@@ -32,6 +32,27 @@ public class DatabaseHelper {
                         "days_until_expiration INTEGER, " +
                         "FOREIGN KEY(user_email) REFERENCES users(email))");
             
+            // Create shopping list table
+            stmt.execute("CREATE TABLE IF NOT EXISTS shopping_list (" +
+                        "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                        "user_email TEXT, " +
+                        "ingredient_name TEXT, " +
+                        "recipe_name TEXT, " +
+                        "is_purchased BOOLEAN DEFAULT FALSE, " +
+                        "date_added DATETIME DEFAULT CURRENT_TIMESTAMP, " +
+                        "FOREIGN KEY(user_email) REFERENCES users(email))");
+            
+            // Create favorite recipes table
+            stmt.execute("CREATE TABLE IF NOT EXISTS favorite_recipes (" +
+                        "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                        "user_email TEXT, " +
+                        "recipe_name TEXT, " +
+                        "recipe_data TEXT, " +
+                        "date_favorited DATETIME DEFAULT CURRENT_TIMESTAMP, " +
+                        "FOREIGN KEY(user_email) REFERENCES users(email), " +
+                        "UNIQUE(user_email, recipe_name))");
+            
+            
             // Check if expiration_date column exists in inventory table, if not add it
             ResultSet inventoryRs = stmt.executeQuery("PRAGMA table_info(inventory)");
             boolean hasExpirationDate = false;
@@ -781,6 +802,87 @@ public class DatabaseHelper {
             return rowsAffected >= 0; // Return true even if no items were deleted
         } catch (SQLException e) {
             System.err.println("Error clearing inventory: " + e.getMessage());
+            return false;
+        }
+    }
+    
+    // Shopping List methods
+    public static boolean addToShoppingList(String userEmail, String ingredientName, String recipeName) {
+        String sql = "INSERT INTO shopping_list (user_email, ingredient_name, recipe_name) VALUES (?, ?, ?)";
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, userEmail);
+            pstmt.setString(2, ingredientName);
+            pstmt.setString(3, recipeName);
+            int rowsAffected = pstmt.executeUpdate();
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            System.err.println("Error adding to shopping list: " + e.getMessage());
+            return false;
+        }
+    }
+    
+    public static java.util.List<String> getShoppingList(String userEmail) {
+        java.util.List<String> shoppingList = new java.util.ArrayList<>();
+        String sql = "SELECT ingredient_name, recipe_name FROM shopping_list WHERE user_email = ? AND is_purchased = FALSE ORDER BY date_added ASC";
+        
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, userEmail);
+            ResultSet rs = pstmt.executeQuery();
+            
+            while (rs.next()) {
+                String ingredient = rs.getString("ingredient_name");
+                String recipe = rs.getString("recipe_name");
+                shoppingList.add(ingredient + " (for " + recipe + ")");
+            }
+        } catch (SQLException e) {
+            System.err.println("Error getting shopping list: " + e.getMessage());
+        }
+        
+        return shoppingList;
+    }
+    
+    // Favorite Recipes methods
+    public static boolean addToFavorites(String userEmail, String recipeName, String recipeData) {
+        String sql = "INSERT OR REPLACE INTO favorite_recipes (user_email, recipe_name, recipe_data) VALUES (?, ?, ?)";
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, userEmail);
+            pstmt.setString(2, recipeName);
+            pstmt.setString(3, recipeData);
+            int rowsAffected = pstmt.executeUpdate();
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            System.err.println("Error adding to favorites: " + e.getMessage());
+            return false;
+        }
+    }
+    
+    public static boolean isRecipeFavorited(String userEmail, String recipeName) {
+        String sql = "SELECT COUNT(*) FROM favorite_recipes WHERE user_email = ? AND recipe_name = ?";
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, userEmail);
+            pstmt.setString(2, recipeName);
+            ResultSet rs = pstmt.executeQuery();
+            return rs.next() && rs.getInt(1) > 0;
+        } catch (SQLException e) {
+            System.err.println("Error checking if recipe is favorited: " + e.getMessage());
+            return false;
+        }
+    }
+    
+    public static boolean removeFromFavorites(String userEmail, String recipeName) {
+        String sql = "DELETE FROM favorite_recipes WHERE user_email = ? AND recipe_name = ?";
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, userEmail);
+            pstmt.setString(2, recipeName);
+            int rowsAffected = pstmt.executeUpdate();
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            System.err.println("Error removing from favorites: " + e.getMessage());
             return false;
         }
     }
