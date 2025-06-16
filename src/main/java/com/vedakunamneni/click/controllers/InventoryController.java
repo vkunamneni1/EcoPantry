@@ -1,16 +1,23 @@
 package com.vedakunamneni.click.controllers;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import com.vedakunamneni.click.App;
 import com.vedakunamneni.click.SessionManager;
+import com.vedakunamneni.click.models.Ingredient;
 import com.vedakunamneni.db.DatabaseHelper;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -30,7 +37,7 @@ public class InventoryController implements Initializable {
             return;
         }
 
-        List<String> inventory = DatabaseHelper.getUserInventory(currentUser);
+        List<Ingredient> inventory = DatabaseHelper.getUserInventory(currentUser);
         
         // Clear existing items
         inventoryContainer.getChildren().clear();
@@ -40,16 +47,33 @@ public class InventoryController implements Initializable {
             emptyLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: #666; -fx-padding: 20; -fx-alignment: center;");
             inventoryContainer.getChildren().add(emptyLabel);
         } else {
-            for (String item : inventory) {
+            for (Ingredient ingredient : inventory) {
                 // Create an HBox for each inventory item
-                javafx.scene.layout.HBox itemBox = new javafx.scene.layout.HBox(10);
-                itemBox.getStyleClass().add("food-item");
+                HBox itemBox = new HBox(10);
+                itemBox.setStyle("-fx-padding: 10; -fx-border-color: #e0e0e0; -fx-border-radius: 5; -fx-background-color: #f9f9f9; -fx-background-radius: 5; -fx-alignment: center-left;");
+                itemBox.setPadding(new Insets(10));
                 
                 // Add emoji based on item name
-                String emoji = getIngredientEmoji(item);
-                Label itemLabel = new Label(emoji + " " + item);
-                itemBox.getChildren().add(itemLabel);
+                String emoji = getIngredientEmoji(ingredient.getName());
+                Label itemLabel = new Label(emoji + " " + ingredient.getName());
+                itemLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
                 
+                // Add quantity label
+                Label quantityLabel = new Label("Qty: " + ingredient.getQuantity());
+                quantityLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #666;");
+                
+                // Add expiration status
+                Label expirationLabel = createExpirationLabel(ingredient);
+                
+                // Add remove button
+                Button removeButton = new Button("Remove");
+                removeButton.setStyle("-fx-font-size: 10px; -fx-background-color: #ff6b6b; -fx-text-fill: white; -fx-border-radius: 3; -fx-background-radius: 3;");
+                removeButton.setOnAction(e -> {
+                    DatabaseHelper.removeFromInventory(ingredient.getId());
+                    loadUserInventory(); // Refresh the list
+                });
+                
+                itemBox.getChildren().addAll(itemLabel, quantityLabel, expirationLabel, removeButton);
                 inventoryContainer.getChildren().add(itemBox);
             }
         }
@@ -76,6 +100,40 @@ public class InventoryController implements Initializable {
         if (lowerIngredient.contains("rice")) return "🍚";
         if (lowerIngredient.contains("bean")) return "🥫";
         return "🥗"; // Default emoji for other ingredients
+    }
+
+    private Label createExpirationLabel(Ingredient ingredient) {
+        long daysUntilExpiration = ingredient.getDaysUntilExpiration();
+        Label expirationLabel = new Label();
+        
+        String expirationText;
+        
+        if (daysUntilExpiration < 0) {
+            // Expired
+            expirationText = "● EXPIRED (" + Math.abs(daysUntilExpiration) + " days ago)";
+            expirationLabel.setTextFill(Color.RED);
+        } else if (daysUntilExpiration == 0) {
+            // Expires today
+            expirationText = "● EXPIRES TODAY";
+            expirationLabel.setTextFill(Color.RED);
+        } else if (daysUntilExpiration <= 2) {
+            // Expires soon (1-2 days)
+            expirationText = "● Expires in " + daysUntilExpiration + " day" + (daysUntilExpiration == 1 ? "" : "s");
+            expirationLabel.setTextFill(Color.RED);
+        } else if (daysUntilExpiration <= 7) {
+            // Expires this week (3-7 days)
+            expirationText = "● Expires in " + daysUntilExpiration + " days";
+            expirationLabel.setTextFill(Color.ORANGE);
+        } else {
+            // Fresh (8+ days)
+            expirationText = "● Fresh (" + daysUntilExpiration + " days left)";
+            expirationLabel.setTextFill(Color.GREEN);
+        }
+        
+        expirationLabel.setText(expirationText);
+        expirationLabel.setStyle("-fx-font-size: 11px; -fx-font-weight: bold;");
+        
+        return expirationLabel;
     }
 
     @FXML

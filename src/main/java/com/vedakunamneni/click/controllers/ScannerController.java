@@ -1,18 +1,24 @@
 package com.vedakunamneni.click.controllers;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.vedakunamneni.click.App;
 import com.vedakunamneni.click.SessionManager;
+import com.vedakunamneni.click.models.Ingredient;
 import com.vedakunamneni.db.DatabaseHelper;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.HBox;
@@ -33,6 +39,8 @@ public class ScannerController {
     private Button addSelectedButton;
 
     private List<CheckBox> ingredientCheckBoxes = new ArrayList<>();
+    private Map<CheckBox, DatePicker> ingredientDatePickers = new HashMap<>();
+    private Map<CheckBox, TextField> ingredientQuantityFields = new HashMap<>();
 
     @FXML
     public void initialize() {
@@ -67,6 +75,8 @@ public class ScannerController {
     private void showDetectedIngredients() {
         ingredientsBox.getChildren().clear();
         ingredientCheckBoxes.clear();
+        ingredientDatePickers.clear();
+        ingredientQuantityFields.clear();
         
         // Mock detected ingredients from receipt
         String[] detectedItems = {
@@ -78,18 +88,48 @@ public class ScannerController {
         };
         
         for (String item : detectedItems) {
-            HBox itemBox = new HBox(10);
-            itemBox.setStyle("-fx-alignment: center-left; -fx-padding: 5;");
+            VBox itemBox = new VBox(5);
+            itemBox.setStyle("-fx-border-color: #e0e0e0; -fx-border-radius: 5; -fx-padding: 10; -fx-background-color: #f9f9f9; -fx-background-radius: 5;");
+            
+            // Top row with checkbox and item name
+            HBox topRow = new HBox(10);
+            topRow.setStyle("-fx-alignment: center-left;");
             
             CheckBox checkBox = new CheckBox();
             checkBox.setSelected(true); // Default to selected
             
             Label label = new Label("🥬 " + item);
-            label.setStyle("-fx-font-size: 14px;");
+            label.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
             
-            itemBox.getChildren().addAll(checkBox, label);
+            topRow.getChildren().addAll(checkBox, label);
+            
+            // Bottom row with quantity and expiration date
+            HBox bottomRow = new HBox(15);
+            bottomRow.setStyle("-fx-alignment: center-left;");
+            
+            // Quantity field
+            Label qtyLabel = new Label("Qty:");
+            qtyLabel.setStyle("-fx-font-size: 12px;");
+            TextField quantityField = new TextField("1");
+            quantityField.setPrefWidth(60);
+            quantityField.setStyle("-fx-font-size: 12px;");
+            
+            // Expiration date picker
+            Label expLabel = new Label("Expires:");
+            expLabel.setStyle("-fx-font-size: 12px;");
+            DatePicker datePicker = new DatePicker();
+            datePicker.setValue(LocalDate.now().plusDays(getDefaultExpirationDays(item)));
+            datePicker.setPrefWidth(140);
+            datePicker.setStyle("-fx-font-size: 12px;");
+            
+            bottomRow.getChildren().addAll(qtyLabel, quantityField, expLabel, datePicker);
+            
+            itemBox.getChildren().addAll(topRow, bottomRow);
             ingredientsBox.getChildren().add(itemBox);
+            
             ingredientCheckBoxes.add(checkBox);
+            ingredientDatePickers.put(checkBox, datePicker);
+            ingredientQuantityFields.put(checkBox, quantityField);
         }
         
         // Show ingredients section
@@ -102,6 +142,36 @@ public class ScannerController {
         successLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: green;");
         dropZone.getChildren().add(successLabel);
     }
+    
+    private int getDefaultExpirationDays(String ingredient) {
+        // Return default expiration days based on ingredient type
+        String lowerItem = ingredient.toLowerCase();
+        
+        if (lowerItem.contains("milk") || lowerItem.contains("yogurt") || lowerItem.contains("cream")) {
+            return 7; // Dairy products
+        } else if (lowerItem.contains("meat") || lowerItem.contains("chicken") || lowerItem.contains("beef") || 
+                   lowerItem.contains("pork") || lowerItem.contains("fish") || lowerItem.contains("seafood")) {
+            return 3; // Fresh meat
+        } else if (lowerItem.contains("bread") || lowerItem.contains("bagel") || lowerItem.contains("roll")) {
+            return 5; // Bread products
+        } else if (lowerItem.contains("lettuce") || lowerItem.contains("spinach") || lowerItem.contains("kale") || 
+                   lowerItem.contains("herbs") || lowerItem.contains("cilantro") || lowerItem.contains("parsley")) {
+            return 4; // Leafy greens
+        } else if (lowerItem.contains("banana") || lowerItem.contains("avocado") || lowerItem.contains("tomato")) {
+            return 5; // Quick-ripening fruits
+        } else if (lowerItem.contains("apple") || lowerItem.contains("orange") || lowerItem.contains("citrus")) {
+            return 14; // Longer-lasting fruits
+        } else if (lowerItem.contains("potato") || lowerItem.contains("onion") || lowerItem.contains("garlic") || 
+                   lowerItem.contains("carrot") || lowerItem.contains("cabbage")) {
+            return 21; // Root vegetables and hardy vegetables
+        } else if (lowerItem.contains("egg")) {
+            return 21; // Eggs
+        } else if (lowerItem.contains("cheese")) {
+            return 14; // Cheese
+        } else {
+            return 7; // Default for other items
+        }
+    }
 
     @FXML
     private void addSelectedToInventory() {
@@ -111,29 +181,42 @@ public class ScannerController {
             return;
         }
 
-        List<String> selectedIngredients = new ArrayList<>();
-        for (int i = 0; i < ingredientCheckBoxes.size(); i++) {
-            CheckBox checkBox = ingredientCheckBoxes.get(i);
-            if (checkBox.isSelected()) {
-                HBox itemBox = (HBox) ingredientsBox.getChildren().get(i);
-                Label label = (Label) itemBox.getChildren().get(1);
-                String ingredientText = label.getText();
-                // Remove emoji and extract ingredient name
-                String ingredientName = ingredientText.substring(ingredientText.indexOf(" ") + 1).trim();
-                selectedIngredients.add(ingredientName);
-            }
-        }
-
-        if (selectedIngredients.isEmpty()) {
-            showAlert("Warning", "Please select at least one ingredient to add!");
-            return;
-        }
-
-        // Add selected ingredients to inventory
         int successCount = 0;
-        for (String ingredient : selectedIngredients) {
-            if (DatabaseHelper.addIngredientToInventory(currentUser, ingredient, 1)) {
-                successCount++;
+        for (CheckBox checkBox : ingredientCheckBoxes) {
+            if (checkBox.isSelected()) {
+                // Get the ingredient name from the label
+                VBox itemBox = (VBox) checkBox.getParent().getParent(); // checkbox -> topRow -> itemBox
+                HBox topRow = (HBox) checkBox.getParent();
+                Label label = (Label) topRow.getChildren().get(1); // Second child is the label
+                String ingredientText = label.getText();
+                String ingredientName = ingredientText.substring(ingredientText.indexOf(" ") + 1).trim();
+                
+                // Get quantity and expiration date
+                DatePicker datePicker = ingredientDatePickers.get(checkBox);
+                TextField quantityField = ingredientQuantityFields.get(checkBox);
+                
+                try {
+                    int quantity = Integer.parseInt(quantityField.getText().trim());
+                    LocalDate expirationDate = datePicker.getValue();
+                    
+                    if (expirationDate == null) {
+                        expirationDate = LocalDate.now().plusDays(7); // Default if no date selected
+                    }
+                    
+                    if (DatabaseHelper.addToInventory(currentUser, ingredientName, quantity, expirationDate)) {
+                        successCount++;
+                    }
+                } catch (NumberFormatException e) {
+                    System.err.println("Invalid quantity for " + ingredientName + ": " + quantityField.getText());
+                    // Still try to add with quantity 1
+                    LocalDate expirationDate = datePicker.getValue();
+                    if (expirationDate == null) {
+                        expirationDate = LocalDate.now().plusDays(7);
+                    }
+                    if (DatabaseHelper.addToInventory(currentUser, ingredientName, 1, expirationDate)) {
+                        successCount++;
+                    }
+                }
             }
         }
 
