@@ -3,6 +3,7 @@ package com.vedakunamneni.click.controllers;
 import java.io.IOException;
 
 import com.vedakunamneni.click.App;
+import com.vedakunamneni.click.SessionManager;
 import com.vedakunamneni.db.DatabaseHelper;
 
 import javafx.fxml.FXML;

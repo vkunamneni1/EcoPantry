@@ -3,6 +3,7 @@ package com.vedakunamneni.click.controllers;
 import java.io.IOException;
 
 import com.vedakunamneni.click.App;
+import com.vedakunamneni.click.SessionManager;
 import com.vedakunamneni.db.DatabaseHelper;
 
 import javafx.fxml.FXML;
@@ -48,6 +49,7 @@ public class LoginController {
         String password = passwordField.getText().trim();
 
         if (DatabaseHelper.validateLogin(email, password)) {
+            SessionManager.setCurrentUser(email);
             App.setRoot("dashboard");
         } else {
             errorLabel.setText("Invalid username or password.");

@@ -1,8 +1,10 @@
 package com.vedakunamneni.click.controllers;
 
 import java.io.IOException;
+import java.time.LocalTime;
 
 import com.vedakunamneni.click.App;
+import com.vedakunamneni.click.SessionManager;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -31,7 +33,9 @@ public class DashboardController {
         double currentPoints = 1247.0;
 
         if (welcomeLabel != null) {
-            welcomeLabel.setText("Good Morning, Veda!");
+            String greeting = getTimeBasedGreeting();
+            String displayName = SessionManager.getDisplayName();
+            welcomeLabel.setText(greeting + ", " + displayName + "!");
         }
         if (tipLabel != null) {
             tipLabel.setText("Revive wilted greens by soaking them in ice water for 30 minutes.");
@@ -44,8 +48,20 @@ public class DashboardController {
         }
     }
 
+    private String getTimeBasedGreeting() {
+        LocalTime now = LocalTime.now();
+        if (now.isBefore(LocalTime.of(12, 0))) {
+            return "Good Morning";
+        } else if (now.isBefore(LocalTime.of(17, 0))) {
+            return "Good Afternoon";
+        } else {
+            return "Good Evening";
+        }
+    }
+
     @FXML
     private void handleLogout() throws IOException {
+        SessionManager.logout();
         App.setRoot("start");
     }
 
