@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.vedakunamneni.click.controllers.RecipeDetailController"
+            stylesheets="@../styles/ecopantry.css"
+            prefWidth="1280" prefHeight="800">
+
+    <!-- Sidebar -->
+    <left>
+        <VBox spacing="16" alignment="TOP_CENTER" styleClass="sidebar">
+            <padding>
+                <Insets top="30" left="15" bottom="30" right="15"/>
+            </padding>
+            <Label text="🌱 EcoPantry" styleClass="nav-title"/>
+            <Separator />
+            <Button text="Dashboard" styleClass="nav-button" onAction="#goToDashboard"/>
+            <Button text="Inventory" styleClass="nav-button" onAction="#goToInventory"/>
+            <Button text="Recipes" styleClass="nav-button selected" onAction="#goToRecipes"/>
+            <Button text="Scanner" styleClass="nav-button" onAction="#goToScanner"/>
+            <Button text="Statistics" styleClass="nav-button"/>
+            <Separator />
+            <Button text="Logout" onAction="#handleLogout" styleClass="nav-button"/>
+            <Label text="© 2025 EcoPantry" styleClass="footer-label"/>
+        </VBox>
+    </left>
+
+    <!-- Main Recipe Detail Content -->
+    <center>
+        <ScrollPane fitToWidth="true" styleClass="content-area">
+            <VBox spacing="30" styleClass="recipe-detail-container">
+                <!-- Header Section -->
+                <VBox spacing="15">
+                    <Button fx:id="backButton" text="← Back to Recipes" onAction="#goBack" 
+                            style="-fx-background-color: transparent; -fx-text-fill: #2196F3; -fx-font-size: 14px; -fx-cursor: hand;"/>
+                    
+                    <HBox spacing="20" alignment="CENTER_LEFT">
+                        <VBox spacing="10" HBox.hgrow="ALWAYS">
+                            <Label fx:id="recipeNameLabel" text="Recipe Name" styleClass="recipe-title"/>
+                            <Label fx:id="recipeDescriptionLabel" text="Recipe Description" styleClass="recipe-description"/>
+                            
+                            <!-- Recipe Info Bar -->
+                            <HBox spacing="30" alignment="CENTER_LEFT">
+                                <VBox spacing="5" alignment="CENTER">
+                                    <Label text="⏱️ Cook Time" style="-fx-font-size: 12px; -fx-text-fill: #666;"/>
+                                    <Label fx:id="cookTimeLabel" text="30 min" style="-fx-font-size: 14px; -fx-font-weight: bold;"/>
+                                </VBox>
+                                
+                                <VBox spacing="5" alignment="CENTER">
+                                    <Label text="🔥 Difficulty" style="-fx-font-size: 12px; -fx-text-fill: #666;"/>
+                                    <Label fx:id="difficultyLabel" text="★★★☆☆" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #FF9800;"/>
+                                </VBox>
+                                
+                                <VBox spacing="5" alignment="CENTER">
+                                    <Label text="🍽️ Servings" style="-fx-font-size: 12px; -fx-text-fill: #666;"/>
+                                    <Label fx:id="servingsLabel" text="4" style="-fx-font-size: 14px; -fx-font-weight: bold;"/>
+                                </VBox>
+                                
+                                <VBox spacing="5" alignment="CENTER">
+                                    <Label text="📂 Category" style="-fx-font-size: 12px; -fx-text-fill: #666;"/>
+                                    <Label fx:id="categoryLabel" text="Vegetarian" style="-fx-font-size: 12px; -fx-padding: 4 8; -fx-background-radius: 10; -fx-text-fill: white;"/>
+                                </VBox>
+                            </HBox>
+                        </VBox>
+                        
+                        <!-- Color indicator -->
+                        <VBox fx:id="colorIndicator" prefWidth="8" prefHeight="100" style="-fx-background-radius: 4;"/>
+                    </HBox>
+                </VBox>
+                
+                <!-- Main Content Area -->
+                <HBox spacing="40" alignment="TOP_LEFT">
+                    <!-- Ingredients Section -->
+                    <VBox spacing="15" prefWidth="300">
+                        <Label text="Ingredients" styleClass="section-title"/>
+                        <VBox fx:id="ingredientsContainer" spacing="8" 
+                              style="-fx-background-color: #f8f9fa; -fx-padding: 20; -fx-background-radius: 10; -fx-border-color: #dee2e6; -fx-border-radius: 10;"/>
+                    </VBox>
+                    
+                    <!-- Instructions Section -->
+                    <VBox spacing="15" HBox.hgrow="ALWAYS">
+                        <Label text="Instructions" styleClass="section-title"/>
+                        <VBox fx:id="instructionsContainer" spacing="12" 
+                              style="-fx-background-color: #f8f9fa; -fx-padding: 20; -fx-background-radius: 10; -fx-border-color: #dee2e6; -fx-border-radius: 10;"/>
+                    </VBox>
+                </HBox>
+                
+                <!-- Action Buttons -->
+                <HBox spacing="15" alignment="CENTER">
+                    <Button text="🛒 Add Missing Ingredients to Shopping List" 
+                            style="-fx-font-size: 14px; -fx-background-color: #FF9800; -fx-text-fill: white; -fx-padding: 12 20; -fx-background-radius: 5;"/>
+                    <Button text="⭐ Favorite Recipe" 
+                            style="-fx-font-size: 14px; -fx-background-color: #E91E63; -fx-text-fill: white; -fx-padding: 12 20; -fx-background-radius: 5;"/>
+                    <Button text="📋 Copy Recipe" 
+                            style="-fx-font-size: 14px; -fx-background-color: #2196F3; -fx-text-fill: white; -fx-padding: 12 20; -fx-background-radius: 5;"/>
+                </HBox>
+            </VBox>
+        </ScrollPane>
+    </center>
+</BorderPane>

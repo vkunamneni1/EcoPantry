@@ -1,7 +1,10 @@
 package com.vedakunamneni.click;
 
+import com.vedakunamneni.click.models.Recipe;
+
 public class SessionManager {
     private static String currentUser = null;
+    private static Recipe selectedRecipe = null;
     
     public static void setCurrentUser(String username) {
         currentUser = username;
@@ -37,5 +40,17 @@ public class SessionManager {
     
     public static void clearSession() {
         currentUser = null;
+    }
+    
+    public static void setSelectedRecipe(Recipe recipe) {
+        selectedRecipe = recipe;
+    }
+    
+    public static Recipe getSelectedRecipe() {
+        return selectedRecipe;
+    }
+    
+    public static void clearSelectedRecipe() {
+        selectedRecipe = null;
     }
 }

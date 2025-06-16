@@ -321,3 +321,36 @@
 .eye-button:hover {
     -fx-background-color: #eef2f7;
 }
+
+/* Recipe Styles */
+.recipe-container {
+    -fx-padding: 40;
+}
+
+.recipe-title {
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1f2937;
+}
+
+.recipe-description {
+    -fx-font-size: 16px;
+    -fx-text-fill: #6b7280;
+    -fx-wrap-text: true;
+}
+
+.section-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #374151;
+}
+
+.recipe-detail-container {
+    -fx-padding: 40;
+    -fx-spacing: 30;
+}
+
+.content-area {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}

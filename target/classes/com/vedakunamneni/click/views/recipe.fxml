@@ -1,19 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
 
 <BorderPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.vedakunamneni.click.controllers.RecipeController"
-            stylesheets="@../styles/ecopantry.css">
+            stylesheets="@../styles/ecopantry.css"
+            prefWidth="1280" prefHeight="800">
 
+    <!-- Sidebar -->
     <left>
-        <!-- Copy same sidebar from dashboard.fxml -->
+        <VBox spacing="16" alignment="TOP_CENTER" styleClass="sidebar">
+            <padding>
+                <Insets top="30" left="15" bottom="30" right="15"/>
+            </padding>
+            <Label text="🌱 EcoPantry" styleClass="nav-title"/>
+            <Separator />
+            <Button text="Dashboard" styleClass="nav-button" onAction="#goToDashboard"/>
+            <Button text="Inventory" styleClass="nav-button" onAction="#goToInventory"/>
+            <Button text="Recipes" styleClass="nav-button selected"/>
+            <Button text="Scanner" styleClass="nav-button" onAction="#goToScanner"/>
+            <Button text="Statistics" styleClass="nav-button"/>
+            <Separator />
+            <Button text="Logout" onAction="#handleLogout" styleClass="nav-button"/>
+            <Label text="© 2025 EcoPantry" styleClass="footer-label"/>
+        </VBox>
     </left>
 
+    <!-- Main Recipe Content -->
     <center>
-        <VBox spacing="20" padding="40">
-            <Label text="Recommended Recipes" styleClass="page-title"/>
-            <VBox fx:id="recipeBox" spacing="10"/>
-        </VBox>
+        <ScrollPane fitToWidth="true" styleClass="content-area">
+            <VBox fx:id="recipeBox" spacing="20" styleClass="recipe-container">
+                <!-- Content will be dynamically loaded -->
+            </VBox>
+        </ScrollPane>
     </center>
 </BorderPane>

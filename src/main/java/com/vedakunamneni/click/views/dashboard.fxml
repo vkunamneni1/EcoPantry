@@ -21,7 +21,7 @@
             <Separator />
             <Button styleClass="nav-button selected" text="Dashboard" />
             <Button onAction="#goToInventory" styleClass="nav-button" text="Inventory" />
-            <Button styleClass="nav-button" text="Recipes" />
+            <Button onAction="#goToRecipes" styleClass="nav-button" text="Recipes" />
             <Button onAction="#goToScanner" styleClass="nav-button" text="Scanner" />
             <Button styleClass="nav-button" text="Statistics" />
             <Separator />
@@ -61,7 +61,7 @@
                 <HBox spacing="20">
                     <Button onAction="#goToInventory" styleClass="action-button" text="() View Inventory" />
                     <Button onAction="#goToScanner" styleClass="action-button" text="📷 Scan a Receipt" />
-                    <Button styleClass="action-button" text="💡 Get Recipe Ideas" />
+                    <Button onAction="#goToRecipes" styleClass="action-button" text="💡 Get Recipe Ideas" />
                 </HBox>
             </VBox>
         </VBox>
