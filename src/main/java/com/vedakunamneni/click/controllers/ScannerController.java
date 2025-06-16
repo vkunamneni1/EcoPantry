@@ -98,7 +98,7 @@ public class ScannerController {
             CheckBox checkBox = new CheckBox();
             checkBox.setSelected(true); // Default to selected
             
-            Label label = new Label("🥬 " + item);
+            Label label = new Label(getIngredientEmoji(item) + " " + item);
             label.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
             
             topRow.getChildren().addAll(checkBox, label);
@@ -259,6 +259,33 @@ public class ScannerController {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    private String getIngredientEmoji(String ingredient) {
+        String lowerIngredient = ingredient.toLowerCase();
+        if (lowerIngredient.contains("carrot")) return "🥕";
+        if (lowerIngredient.contains("tomato")) return "🍅";
+        if (lowerIngredient.contains("spinach")) return "🥬";
+        if (lowerIngredient.contains("broccoli")) return "🥦";
+        if (lowerIngredient.contains("onion")) return "🧅";
+        if (lowerIngredient.contains("garlic")) return "🧄";
+        if (lowerIngredient.contains("pepper")) return "🌶️";
+        if (lowerIngredient.contains("potato")) return "🥔";
+        if (lowerIngredient.contains("mushroom")) return "🍄";
+        if (lowerIngredient.contains("banana")) return "🍌";
+        if (lowerIngredient.contains("apple")) return "🍎";
+        if (lowerIngredient.contains("milk")) return "🥛";
+        if (lowerIngredient.contains("egg")) return "🥚";
+        if (lowerIngredient.contains("cheese")) return "🧀";
+        if (lowerIngredient.contains("bread")) return "🍞";
+        if (lowerIngredient.contains("chicken")) return "🍗";
+        if (lowerIngredient.contains("rice")) return "🍚";
+        if (lowerIngredient.contains("bean")) return "🥫";
+        if (lowerIngredient.contains("zucchini")) return "🥒";
+        if (lowerIngredient.contains("cabbage")) return "🥬";
+        if (lowerIngredient.contains("kale")) return "🥬";
+        if (lowerIngredient.contains("celery")) return "🥬";
+        return "🥗"; // Default emoji for other ingredients
     }
 
     // 🔁 Navigation actions

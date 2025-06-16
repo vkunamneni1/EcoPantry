@@ -1,8 +1,6 @@
 package com.vedakunamneni.click.controllers;
 
 import java.io.IOException;
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import com.vedakunamneni.click.App;
@@ -17,6 +15,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -47,34 +47,95 @@ public class InventoryController implements Initializable {
             emptyLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: #666; -fx-padding: 20; -fx-alignment: center;");
             inventoryContainer.getChildren().add(emptyLabel);
         } else {
+            // Group ingredients by name
+            java.util.Map<String, java.util.List<Ingredient>> groupedIngredients = new java.util.HashMap<>();
             for (Ingredient ingredient : inventory) {
-                // Create an HBox for each inventory item
-                HBox itemBox = new HBox(10);
-                itemBox.setStyle("-fx-padding: 10; -fx-border-color: #e0e0e0; -fx-border-radius: 5; -fx-background-color: #f9f9f9; -fx-background-radius: 5; -fx-alignment: center-left;");
-                itemBox.setPadding(new Insets(10));
+                groupedIngredients.computeIfAbsent(ingredient.getName(), k -> new java.util.ArrayList<>()).add(ingredient);
+            }
+            
+            for (java.util.Map.Entry<String, java.util.List<Ingredient>> entry : groupedIngredients.entrySet()) {
+                String ingredientName = entry.getKey();
+                java.util.List<Ingredient> ingredients = entry.getValue();
+                
+                // Calculate total quantity
+                int totalQuantity = ingredients.stream().mapToInt(Ingredient::getQuantity).sum();
+                
+                // Create main grouped item box
+                VBox mainItemBox = new VBox(5);
+                mainItemBox.setStyle("-fx-padding: 10; -fx-border-color: #e0e0e0; -fx-border-radius: 5; -fx-background-color: #f9f9f9; -fx-background-radius: 5;");
+                mainItemBox.setPadding(new Insets(10));
+                
+                // Create clickable header
+                HBox headerBox = new HBox(10);
+                headerBox.setStyle("-fx-alignment: center-left; -fx-cursor: hand;");
                 
                 // Add emoji based on item name
-                String emoji = getIngredientEmoji(ingredient.getName());
-                Label itemLabel = new Label(emoji + " " + ingredient.getName());
+                String emoji = getIngredientEmoji(ingredientName);
+                Label itemLabel = new Label(emoji + " " + ingredientName);
                 itemLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
                 
-                // Add quantity label
-                Label quantityLabel = new Label("Qty: " + ingredient.getQuantity());
+                // Add total quantity label
+                Label quantityLabel = new Label("Total Qty: " + totalQuantity + " (" + ingredients.size() + " batches)");
                 quantityLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #666;");
                 
-                // Add expiration status
-                Label expirationLabel = createExpirationLabel(ingredient);
+                // Add spacer to push buttons to the right
+                Region spacer = new Region();
+                HBox.setHgrow(spacer, Priority.ALWAYS);
                 
-                // Add remove button
-                Button removeButton = new Button("Remove");
-                removeButton.setStyle("-fx-font-size: 10px; -fx-background-color: #ff6b6b; -fx-text-fill: white; -fx-border-radius: 3; -fx-background-radius: 3;");
-                removeButton.setOnAction(e -> {
-                    DatabaseHelper.removeFromInventory(ingredient.getId());
-                    loadUserInventory(); // Refresh the list
+                // Add "Clear All" button for this item type
+                Button clearAllButton = new Button("Clear All");
+                clearAllButton.setStyle("-fx-font-size: 10px; -fx-background-color: #f59e0b; -fx-text-fill: white; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 5 10;");
+                clearAllButton.setOnAction(e -> {
+                    e.consume(); // Prevent header click event
+                    handleClearAllItems(ingredientName, ingredients);
                 });
                 
-                itemBox.getChildren().addAll(itemLabel, quantityLabel, expirationLabel, removeButton);
-                inventoryContainer.getChildren().add(itemBox);
+                // Add expand/collapse indicator
+                Label expandLabel = new Label("▼ Click to expand");
+                expandLabel.setStyle("-fx-font-size: 10px; -fx-text-fill: #999;");
+                
+                headerBox.getChildren().addAll(itemLabel, quantityLabel, spacer, clearAllButton, expandLabel);
+                
+                // Create details container (initially hidden)
+                VBox detailsContainer = new VBox(5);
+                detailsContainer.setVisible(false);
+                detailsContainer.setManaged(false);
+                detailsContainer.setStyle("-fx-padding: 10 0 0 20; -fx-border-color: #ddd; -fx-border-width: 1 0 0 2; -fx-border-style: solid;");
+                
+                // Add individual items to details container
+                for (Ingredient ingredient : ingredients) {
+                    HBox itemDetailBox = new HBox(10);
+                    itemDetailBox.setStyle("-fx-alignment: center-left; -fx-padding: 5;");
+                    
+                    Label detailLabel = new Label("Batch ID: " + ingredient.getId());
+                    detailLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #666;");
+                    
+                    Label qtyLabel = new Label("Qty: " + ingredient.getQuantity());
+                    qtyLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #666;");
+                    
+                    Label expirationLabel = createExpirationLabel(ingredient);
+                    expirationLabel.setStyle("-fx-font-size: 10px;");
+                    
+                    Button removeButton = new Button("Remove");
+                    removeButton.setStyle("-fx-font-size: 9px; -fx-background-color: #ff6b6b; -fx-text-fill: white; -fx-border-radius: 3; -fx-background-radius: 3; -fx-padding: 3 8;");
+                    removeButton.setOnAction(e -> {
+                        handleRemoveItem(ingredient);
+                    });
+                    
+                    itemDetailBox.getChildren().addAll(detailLabel, qtyLabel, expirationLabel, removeButton);
+                    detailsContainer.getChildren().add(itemDetailBox);
+                }
+                
+                // Add click handler to toggle details
+                headerBox.setOnMouseClicked(e -> {
+                    boolean isVisible = detailsContainer.isVisible();
+                    detailsContainer.setVisible(!isVisible);
+                    detailsContainer.setManaged(!isVisible);
+                    expandLabel.setText(isVisible ? "▼ Click to expand" : "▲ Click to collapse");
+                });
+                
+                mainItemBox.getChildren().addAll(headerBox, detailsContainer);
+                inventoryContainer.getChildren().add(mainItemBox);
             }
         }
     }
@@ -160,5 +221,137 @@ public class InventoryController implements Initializable {
     @FXML
     private void goToStatistics() throws IOException {
         App.setRoot("statistics");
+        // The statistics page will auto-refresh when loaded
+    }
+    
+    private void handleClearAllItems(String itemName, List<Ingredient> ingredients) {
+        // Show confirmation dialog
+        javafx.scene.control.Alert confirmAlert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.CONFIRMATION);
+        confirmAlert.setTitle("Clear All Items");
+        confirmAlert.setHeaderText("Remove all " + itemName + " items?");
+        confirmAlert.setContentText("Are you sure you want to remove all " + ingredients.size() + " batches of " + itemName + "?");
+        
+        javafx.scene.control.ButtonType usedButton = new javafx.scene.control.ButtonType("Used (All)");
+        javafx.scene.control.ButtonType wastedButton = new javafx.scene.control.ButtonType("Wasted (All)");
+        javafx.scene.control.ButtonType cancelButton = javafx.scene.control.ButtonType.CANCEL;
+        
+        confirmAlert.getButtonTypes().setAll(usedButton, wastedButton, cancelButton);
+        
+        java.util.Optional<javafx.scene.control.ButtonType> result = confirmAlert.showAndWait();
+        if (result.isPresent()) {
+            if (result.get() == usedButton) {
+                // Remove all items as used
+                for (Ingredient ingredient : ingredients) {
+                    DatabaseHelper.removeFromInventoryWithTracking(ingredient.getId(), true);
+                }
+                loadUserInventory(); // Refresh the list
+            } else if (result.get() == wastedButton) {
+                // Remove all items as wasted
+                for (Ingredient ingredient : ingredients) {
+                    DatabaseHelper.removeFromInventoryWithTracking(ingredient.getId(), false);
+                }
+                loadUserInventory(); // Refresh the list
+            }
+        }
+    }
+    
+    private void handleRemoveItem(Ingredient ingredient) {
+        // First, ask for quantity if the item has more than 1
+        if (ingredient.getQuantity() > 1) {
+            // Show quantity selection dialog
+            javafx.scene.control.Dialog<Integer> quantityDialog = new javafx.scene.control.Dialog<>();
+            quantityDialog.setTitle("Remove Items");
+            quantityDialog.setHeaderText("How many " + ingredient.getName() + " do you want to remove?");
+            
+            // Create the content
+            javafx.scene.layout.GridPane grid = new javafx.scene.layout.GridPane();
+            grid.setHgap(10);
+            grid.setVgap(10);
+            grid.setPadding(new javafx.geometry.Insets(20, 150, 10, 10));
+            
+            javafx.scene.control.TextField quantityField = new javafx.scene.control.TextField();
+            quantityField.setPromptText("Enter quantity (1-" + ingredient.getQuantity() + ")");
+            quantityField.setText("1");
+            
+            javafx.scene.control.Button allButton = new javafx.scene.control.Button("Remove All (" + ingredient.getQuantity() + ")");
+            allButton.setOnAction(e -> {
+                quantityField.setText(String.valueOf(ingredient.getQuantity()));
+            });
+            
+            grid.add(new javafx.scene.control.Label("Quantity:"), 0, 0);
+            grid.add(quantityField, 1, 0);
+            grid.add(allButton, 2, 0);
+            
+            quantityDialog.getDialogPane().setContent(grid);
+            
+            javafx.scene.control.ButtonType confirmButtonType = new javafx.scene.control.ButtonType("Continue", javafx.scene.control.ButtonBar.ButtonData.OK_DONE);
+            quantityDialog.getDialogPane().getButtonTypes().addAll(confirmButtonType, javafx.scene.control.ButtonType.CANCEL);
+            
+            quantityDialog.setResultConverter(dialogButton -> {
+                if (dialogButton == confirmButtonType) {
+                    try {
+                        int qty = Integer.parseInt(quantityField.getText());
+                        if (qty > 0 && qty <= ingredient.getQuantity()) {
+                            return qty;
+                        }
+                    } catch (NumberFormatException e) {
+                        // Invalid input
+                    }
+                }
+                return null;
+            });
+            
+            java.util.Optional<Integer> quantityResult = quantityDialog.showAndWait();
+            if (quantityResult.isPresent()) {
+                int quantityToRemove = quantityResult.get();
+                handleRemovalChoice(ingredient, quantityToRemove);
+            }
+        } else {
+            // Only 1 item, proceed directly to usage choice
+            handleRemovalChoice(ingredient, 1);
+        }
+    }
+    
+    private void handleRemovalChoice(Ingredient ingredient, int quantityToRemove) {
+        // Show dialog to ask if item was used or wasted
+        javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Remove Item");
+        alert.setHeaderText("How was this item handled?");
+        
+        String itemText = quantityToRemove == ingredient.getQuantity() ? 
+            "all " + ingredient.getName() + " (Qty: " + ingredient.getQuantity() + ")" :
+            quantityToRemove + " of " + ingredient.getName() + " (from " + ingredient.getQuantity() + ")";
+            
+        alert.setContentText("Was " + itemText + " used (consumed) or wasted (thrown away)?");
+        
+        javafx.scene.control.ButtonType usedButton = new javafx.scene.control.ButtonType("Used");
+        javafx.scene.control.ButtonType wastedButton = new javafx.scene.control.ButtonType("Wasted");
+        javafx.scene.control.ButtonType cancelButton = javafx.scene.control.ButtonType.CANCEL;
+        
+        alert.getButtonTypes().setAll(usedButton, wastedButton, cancelButton);
+        
+        java.util.Optional<javafx.scene.control.ButtonType> result = alert.showAndWait();
+        if (result.isPresent()) {
+            boolean wasUsed = result.get() == usedButton;
+            if (result.get() == usedButton || result.get() == wastedButton) {
+                if (quantityToRemove == ingredient.getQuantity()) {
+                    // Remove entire item
+                    DatabaseHelper.removeFromInventoryWithTracking(ingredient.getId(), wasUsed);
+                } else {
+                    // Reduce quantity
+                    int newQuantity = ingredient.getQuantity() - quantityToRemove;
+                    DatabaseHelper.updateInventoryQuantity(ingredient.getId(), newQuantity);
+                    
+                    // Track the removed quantity as a statistic
+                    String userEmail = SessionManager.getCurrentUser();
+                    if (userEmail != null) {
+                        String status = wasUsed ? "USED" : "WASTED";
+                        int daysUntilExpiration = (int) ingredient.getDaysUntilExpiration();
+                        DatabaseHelper.trackFoodStatistic(userEmail, ingredient.getName(), quantityToRemove, status, daysUntilExpiration);
+                    }
+                }
+                loadUserInventory(); // Refresh the list
+            }
+        }
     }
 }

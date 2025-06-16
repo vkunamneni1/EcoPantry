@@ -55,39 +55,64 @@ public class StatisticsController {
     private void initialize() {
         loadStatistics();
     }
+    
+    // Public method to refresh statistics (can be called from other controllers)
+    public void refreshStatistics() {
+        loadStatistics();
+    }
 
     private void loadStatistics() {
         String userEmail = SessionManager.getCurrentUser();
         if (userEmail == null) {
+            System.out.println("StatisticsController: No user logged in");
             return;
         }
 
-        List<Ingredient> inventory = DatabaseHelper.getUserInventory(userEmail);
+        System.out.println("StatisticsController: Loading statistics for user: " + userEmail);
         
-        // Calculate statistics
-        int totalItems = inventory.size();
-        int foodSaved = calculateFoodSaved(inventory);
-        int foodWasted = calculateFoodWasted(inventory);
-        int expiringSoon = calculateExpiringSoon(inventory);
-        int addedThisWeek = calculateAddedThisWeek(inventory);
+        List<Ingredient> inventory = DatabaseHelper.getUserInventory(userEmail);
+        Map<String, Integer> persistentStats = DatabaseHelper.getFoodStatistics(userEmail);
+        Map<String, Object> detailedStats = DatabaseHelper.getDetailedStatistics(userEmail);
+        
+        // Debug output
+        System.out.println("Current inventory size: " + inventory.size());
+        System.out.println("Persistent stats from database: " + persistentStats);
+        System.out.println("Detailed stats: " + detailedStats);
+        
+        // Calculate current inventory statistics
+        int currentTotalItems = inventory.size();
+        int currentExpiringSoon = calculateExpiringSoon(inventory);
         double avgDaysToExpiration = calculateAvgDaysToExpiration(inventory);
-        double efficiencyScore = calculateEfficiencyScore(foodSaved, foodWasted);
+        
+        // Get persistent statistics (items that were already removed)
+        int persistentFoodSaved = persistentStats.getOrDefault("USED", 0);
+        int persistentFoodWasted = persistentStats.getOrDefault("WASTED", 0);
+        
+        // Calculate efficiency score based on persistent data
+        double efficiencyScore = calculateEfficiencyScore(persistentFoodSaved, persistentFoodWasted);
+        
+        System.out.println("Food saved: " + persistentFoodSaved + ", Food wasted: " + persistentFoodWasted);
+        System.out.println("Calculated efficiency score: " + efficiencyScore + "%");
+        
+        // Get detailed statistics
+        int addedThisWeek = (Integer) detailedStats.getOrDefault("addedThisWeek", 0);
+        String mostWastedCategory = (String) detailedStats.getOrDefault("mostWastedCategory", "N/A");
         
         // Update UI labels
         if (totalItemsLabel != null) {
-            totalItemsLabel.setText(String.valueOf(totalItems));
+            totalItemsLabel.setText(String.valueOf(currentTotalItems + persistentFoodSaved + persistentFoodWasted));
         }
         
         if (foodSavedLabel != null) {
-            foodSavedLabel.setText(String.valueOf(foodSaved));
+            foodSavedLabel.setText(String.valueOf(persistentFoodSaved));
         }
         
         if (foodWastedLabel != null) {
-            foodWastedLabel.setText(String.valueOf(foodWasted));
+            foodWastedLabel.setText(String.valueOf(persistentFoodWasted));
         }
         
         if (expiringSoonLabel != null) {
-            expiringSoonLabel.setText(String.valueOf(expiringSoon));
+            expiringSoonLabel.setText(String.valueOf(currentExpiringSoon));
         }
         
         if (addedThisWeekLabel != null) {
@@ -111,10 +136,10 @@ public class StatisticsController {
         }
         
         if (mostWastedCategoryLabel != null) {
-            mostWastedCategoryLabel.setText(getMostWastedCategory(inventory));
+            mostWastedCategoryLabel.setText(mostWastedCategory);
         }
         
-        loadTips(efficiencyScore, expiringSoon);
+        loadTips(efficiencyScore, currentExpiringSoon);
     }
 
     private int calculateFoodSaved(List<Ingredient> inventory) {
@@ -165,13 +190,15 @@ public class StatisticsController {
     private double calculateEfficiencyScore(int foodSaved, int foodWasted) {
         int total = foodSaved + foodWasted;
         if (total == 0) {
-            return 100.0; // Perfect score if no data
+            return 0.0; // No data means 0% efficiency, not perfect score
         }
         return (double) foodSaved / total * 100.0;
     }
 
     private String getEfficiencyMessage(double score) {
-        if (score >= 90) {
+        if (score == 0.0) {
+            return "Start tracking your food usage!";
+        } else if (score >= 90) {
             return "Excellent! You're a food waste warrior!";
         } else if (score >= 75) {
             return "Great job! Keep up the good work!";
@@ -272,5 +299,42 @@ public class StatisticsController {
     private void logout() throws IOException {
         SessionManager.logout();
         App.setRoot("start");
+    }
+
+    @FXML
+    private void clearStatistics() {
+        String userEmail = SessionManager.getCurrentUser();
+        if (userEmail == null) {
+            return;
+        }
+        
+        // Show confirmation dialog
+        javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Reset Statistics");
+        alert.setHeaderText("Are you sure you want to reset your efficiency percentage?");
+        alert.setContentText("This will clear all your food usage and waste tracking data to start fresh. This action cannot be undone.");
+        
+        java.util.Optional<javafx.scene.control.ButtonType> result = alert.showAndWait();
+        if (result.isPresent() && result.get() == javafx.scene.control.ButtonType.OK) {
+            boolean success = DatabaseHelper.clearFoodStatistics(userEmail);
+            if (success) {
+                // Show success message
+                javafx.scene.control.Alert successAlert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION);
+                successAlert.setTitle("Statistics Reset");
+                successAlert.setHeaderText("Success!");
+                successAlert.setContentText("Your efficiency percentage has been reset successfully.");
+                successAlert.showAndWait();
+                
+                // Reload statistics to refresh the display
+                loadStatistics();
+            } else {
+                // Show error message
+                javafx.scene.control.Alert errorAlert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.ERROR);
+                errorAlert.setTitle("Error");
+                errorAlert.setHeaderText("Failed to reset statistics");
+                errorAlert.setContentText("An error occurred while resetting your efficiency percentage. Please try again.");
+                errorAlert.showAndWait();
+            }
+        }
     }
 }

@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<BorderPane xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.vedakunamneni.click.controllers.StatisticsController">
+<BorderPane xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.vedakunamneni.click.controllers.StatisticsController" stylesheets="@../styles/ecopantry.css">
    <left>
       <VBox alignment="TOP_CENTER" prefWidth="200.0" spacing="10.0" styleClass="sidebar">
          <children>
@@ -129,6 +129,13 @@
                   </VBox>
                </children>
             </VBox>
+            
+            <!-- Clear Stats Button Section -->
+            <HBox alignment="CENTER_RIGHT">
+               <children>
+                  <Button mnemonicParsing="false" onAction="#clearStatistics" styleClass="clear-stats-btn" text="Reset %" />
+               </children>
+            </HBox>
             
          </children>
          <padding>

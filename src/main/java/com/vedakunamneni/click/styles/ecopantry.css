@@ -354,3 +354,182 @@
     -fx-background-color: transparent;
     -fx-padding: 0;
 }
+
+/* Statistics Sidebar Styles - Match nav styles */
+.sidebar-title {
+    -fx-font-size: 26px;
+    -fx-text-fill: linear-gradient(to bottom right, #059669, #10b981);
+    -fx-font-weight: bold;
+    -fx-padding: 0 0 20 0;
+    -fx-effect: dropshadow(gaussian, rgba(16,185,129,0.15), 4, 0.5, 0, 2);
+}
+
+.sidebar-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: #374151;
+    -fx-font-size: 15px;
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 10 20;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+}
+
+.sidebar-btn:hover {
+    -fx-background-color: #eef2f7;
+    -fx-text-fill: #111827;
+}
+
+.sidebar-btn-active {
+    -fx-background-color: #10b981;
+    -fx-text-fill: white;
+    -fx-font-size: 15px;
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 10 20;
+    -fx-background-radius: 8;
+    -fx-font-weight: 600;
+}
+
+.sidebar-btn-logout {
+    -fx-background-color: #fee2e2;
+    -fx-text-fill: #dc2626;
+    -fx-font-size: 15px;
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 10 20;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+    -fx-font-weight: 600;
+}
+
+.sidebar-btn-logout:hover {
+    -fx-background-color: #fecaca;
+    -fx-text-fill: #b91c1c;
+}
+
+/* Statistics Content Styles */
+.main-content {
+    -fx-padding: 30;
+    -fx-spacing: 30;
+    -fx-background-color: #f9fbfc;
+}
+
+/* Statistics Cards - Match card styling */
+.stat-card {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 16;
+    -fx-border-color: #e5e7eb;
+    -fx-border-radius: 16;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0.1, 0, 4);
+    -fx-min-width: 200;
+    -fx-max-width: 250;
+}
+
+.stat-card-green {
+    -fx-border-color: #10b981;
+    -fx-border-width: 2;
+    -fx-border-radius: 16;
+}
+
+.stat-card-red {
+    -fx-border-color: #ef4444;
+    -fx-border-width: 2;
+    -fx-border-radius: 16;
+}
+
+.stat-card-blue {
+    -fx-border-color: #3b82f6;
+    -fx-border-width: 2;
+    -fx-border-radius: 16;
+}
+
+.stat-card-purple {
+    -fx-border-color: #8b5cf6;
+    -fx-border-width: 2;
+    -fx-border-radius: 16;
+}
+
+.stat-number {
+    -fx-font-size: 36px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1f2937;
+}
+
+.stat-number-large {
+    -fx-font-size: 48px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1f2937;
+}
+
+.stat-label {
+    -fx-font-size: 16px;
+    -fx-font-weight: 600;
+    -fx-text-fill: #374151;
+}
+
+.stat-sublabel {
+    -fx-font-size: 14px;
+    -fx-text-fill: #6b7280;
+}
+
+/* Progress Bar for Efficiency */
+.efficiency-progress {
+    -fx-accent: #8b5cf6;
+    -fx-background-radius: 10;
+    -fx-background-color: #e5e7eb;
+}
+
+.efficiency-progress .bar {
+    -fx-background-radius: 10;
+    -fx-background-color: linear-gradient(to right, #8b5cf6, #a78bfa);
+}
+
+/* Details Section */
+.details-section {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 16;
+    -fx-padding: 25;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0.1, 0, 4);
+}
+
+.detail-label {
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-text-fill: #374151;
+}
+
+.detail-value {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1f2937;
+}
+
+/* Tips Section */
+.tips-section {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 16;
+    -fx-padding: 25;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0.1, 0, 4);
+}
+
+/* Hover Effects for Statistics Cards */
+.stat-card:hover {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 12, 0.15, 0, 6);
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+}
+
+/* Clear Statistics Button */
+.clear-stats-btn {
+    -fx-background-color: #dc2626;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-padding: 10 20;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 4, 0.1, 0, 2);
+}
+
+.clear-stats-btn:hover {
+    -fx-background-color: #b91c1c;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 6, 0.15, 0, 3);
+}

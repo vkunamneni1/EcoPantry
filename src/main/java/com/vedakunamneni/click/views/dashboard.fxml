@@ -59,7 +59,7 @@
             <VBox spacing="20">
                 <Label styleClass="section-title" text="Quick Actions" />
                 <HBox spacing="20">
-                    <Button onAction="#goToInventory" styleClass="action-button" text="() View Inventory" />
+                    <Button onAction="#goToInventory" styleClass="action-button" text="📜 View Inventory" />
                     <Button onAction="#goToScanner" styleClass="action-button" text="📷 Scan a Receipt" />
                     <Button onAction="#goToRecipes" styleClass="action-button" text="💡 Get Recipe Ideas" />
                 </HBox>

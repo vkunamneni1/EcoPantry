@@ -21,6 +21,17 @@ public class DatabaseHelper {
             // Create inventory table
             stmt.execute("CREATE TABLE IF NOT EXISTS inventory (id INTEGER PRIMARY KEY AUTOINCREMENT, user_email TEXT, ingredient_name TEXT, quantity INTEGER DEFAULT 1, expiration_date DATE, date_added DATETIME DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY(user_email) REFERENCES users(email))");
             
+            // Create statistics tracking table
+            stmt.execute("CREATE TABLE IF NOT EXISTS food_statistics (" +
+                        "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                        "user_email TEXT, " +
+                        "ingredient_name TEXT, " +
+                        "quantity INTEGER, " +
+                        "status TEXT CHECK(status IN ('USED', 'WASTED')), " +
+                        "date_tracked DATETIME DEFAULT CURRENT_TIMESTAMP, " +
+                        "days_until_expiration INTEGER, " +
+                        "FOREIGN KEY(user_email) REFERENCES users(email))");
+            
             // Check if expiration_date column exists in inventory table, if not add it
             ResultSet inventoryRs = stmt.executeQuery("PRAGMA table_info(inventory)");
             boolean hasExpirationDate = false;
@@ -364,5 +375,141 @@ public class DatabaseHelper {
             System.err.println("Error adding to usage log: " + e.getMessage());
             return false;
         }
+    }
+    
+    // Statistics tracking methods
+    public static boolean trackFoodStatistic(String userEmail, String ingredientName, int quantity, String status, int daysUntilExpiration) {
+        String sql = "INSERT INTO food_statistics (user_email, ingredient_name, quantity, status, days_until_expiration) VALUES (?, ?, ?, ?, ?)";
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, userEmail);
+            pstmt.setString(2, ingredientName);
+            pstmt.setInt(3, quantity);
+            pstmt.setString(4, status);
+            pstmt.setInt(5, daysUntilExpiration);
+            int rowsAffected = pstmt.executeUpdate();
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            System.err.println("Error tracking food statistic: " + e.getMessage());
+            return false;
+        }
+    }
+    
+    public static boolean removeFromInventoryWithTracking(int inventoryId, boolean wasUsed) {
+        // First get the item details before removing
+        String getItemSql = "SELECT user_email, ingredient_name, quantity, expiration_date FROM inventory WHERE id = ?";
+        String deleteSql = "DELETE FROM inventory WHERE id = ?";
+        
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             PreparedStatement getStmt = conn.prepareStatement(getItemSql);
+             PreparedStatement deleteStmt = conn.prepareStatement(deleteSql)) {
+            
+            // Get item details
+            getStmt.setInt(1, inventoryId);
+            ResultSet rs = getStmt.executeQuery();
+            
+            if (rs.next()) {
+                String userEmail = rs.getString("user_email");
+                String ingredientName = rs.getString("ingredient_name");
+                int quantity = rs.getInt("quantity");
+                String expirationDateStr = rs.getString("expiration_date");
+                
+                // Calculate days until expiration
+                int daysUntilExpiration = 0;
+                if (expirationDateStr != null) {
+                    try {
+                        java.time.LocalDate expirationDate = java.time.LocalDate.parse(expirationDateStr);
+                        daysUntilExpiration = (int) java.time.temporal.ChronoUnit.DAYS.between(java.time.LocalDate.now(), expirationDate);
+                    } catch (Exception e) {
+                        daysUntilExpiration = 0;
+                    }
+                }
+                
+                // Track the statistic
+                String status = wasUsed ? "USED" : "WASTED";
+                trackFoodStatistic(userEmail, ingredientName, quantity, status, daysUntilExpiration);
+                
+                // Remove from inventory
+                deleteStmt.setInt(1, inventoryId);
+                int rowsAffected = deleteStmt.executeUpdate();
+                return rowsAffected > 0;
+            }
+            
+            return false;
+        } catch (SQLException e) {
+            System.err.println("Error removing from inventory with tracking: " + e.getMessage());
+            return false;
+        }
+    }
+    
+    public static java.util.Map<String, Integer> getFoodStatistics(String userEmail) {
+        java.util.Map<String, Integer> stats = new java.util.HashMap<>();
+        String sql = "SELECT status, SUM(quantity) as total FROM food_statistics WHERE user_email = ? GROUP BY status";
+        
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, userEmail);
+            ResultSet rs = pstmt.executeQuery();
+            
+            while (rs.next()) {
+                String status = rs.getString("status");
+                int total = rs.getInt("total");
+                stats.put(status, total);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error getting food statistics: " + e.getMessage());
+        }
+        
+        return stats;
+    }
+    
+    public static boolean clearFoodStatistics(String userEmail) {
+        String sql = "DELETE FROM food_statistics WHERE user_email = ?";
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, userEmail);
+            int rowsAffected = pstmt.executeUpdate();
+            return rowsAffected >= 0; // Return true even if no rows were deleted
+        } catch (SQLException e) {
+            System.err.println("Error clearing food statistics: " + e.getMessage());
+            return false;
+        }
+    }
+    
+    public static java.util.Map<String, Object> getDetailedStatistics(String userEmail) {
+        java.util.Map<String, Object> detailedStats = new java.util.HashMap<>();
+        
+        // Get items added this week from current inventory
+        String addedThisWeekSql = "SELECT COUNT(*) as count FROM inventory WHERE user_email = ? AND date_added >= date('now', '-7 days')";
+        
+        // Get most wasted category
+        String mostWastedSql = "SELECT ingredient_name, SUM(quantity) as total FROM food_statistics WHERE user_email = ? AND status = 'WASTED' GROUP BY ingredient_name ORDER BY total DESC LIMIT 1";
+        
+        try (Connection conn = DriverManager.getConnection(DB_URL)) {
+            // Added this week
+            try (PreparedStatement pstmt = conn.prepareStatement(addedThisWeekSql)) {
+                pstmt.setString(1, userEmail);
+                ResultSet rs = pstmt.executeQuery();
+                if (rs.next()) {
+                    detailedStats.put("addedThisWeek", rs.getInt("count"));
+                }
+            }
+            
+            // Most wasted category
+            try (PreparedStatement pstmt = conn.prepareStatement(mostWastedSql)) {
+                pstmt.setString(1, userEmail);
+                ResultSet rs = pstmt.executeQuery();
+                if (rs.next()) {
+                    detailedStats.put("mostWastedCategory", rs.getString("ingredient_name"));
+                } else {
+                    detailedStats.put("mostWastedCategory", "N/A");
+                }
+            }
+            
+        } catch (SQLException e) {
+            System.err.println("Error getting detailed statistics: " + e.getMessage());
+        }
+        
+        return detailedStats;
     }
 }
