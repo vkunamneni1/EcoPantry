@@ -26,9 +26,13 @@ public class InventoryController implements Initializable {
     @FXML
     private VBox inventoryContainer;
 
+    @FXML
+    private VBox shoppingListContainer;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         loadUserInventory();
+        loadShoppingList();
     }
 
     private void loadUserInventory() {
@@ -222,6 +226,52 @@ public class InventoryController implements Initializable {
     private void goToStatistics() throws IOException {
         App.setRoot("statistics");
         // The statistics page will auto-refresh when loaded
+    }
+    
+    private void loadShoppingList() {
+        if (shoppingListContainer == null) return;
+        
+        String userEmail = SessionManager.getCurrentUser();
+        if (userEmail == null) return;
+        
+        shoppingListContainer.getChildren().clear();
+        
+        java.util.List<String> shoppingList = DatabaseHelper.getShoppingList(userEmail);
+        
+        if (shoppingList.isEmpty()) {
+            javafx.scene.control.Label emptyLabel = new javafx.scene.control.Label("Your shopping list is empty");
+            emptyLabel.setStyle("-fx-text-fill: #9ca3af; -fx-font-style: italic; -fx-font-size: 12px;");
+            shoppingListContainer.getChildren().add(emptyLabel);
+        } else {
+            for (String item : shoppingList) {
+                javafx.scene.layout.VBox itemBox = new javafx.scene.layout.VBox(3);
+                itemBox.getStyleClass().add("shopping-list-item");
+                
+                javafx.scene.control.Label itemLabel = new javafx.scene.control.Label(item);
+                itemLabel.getStyleClass().add("shopping-list-item-text");
+                
+                itemBox.getChildren().add(itemLabel);
+                shoppingListContainer.getChildren().add(itemBox);
+            }
+        }
+    }
+
+    @FXML
+    private void clearShoppingList() {
+        String userEmail = SessionManager.getCurrentUser();
+        if (userEmail == null) return;
+        
+        // Clear shopping list from database
+        try (java.sql.Connection conn = java.sql.DriverManager.getConnection("jdbc:sqlite:ecopantry.db");
+             java.sql.PreparedStatement pstmt = conn.prepareStatement("DELETE FROM shopping_list WHERE user_email = ?")) {
+            pstmt.setString(1, userEmail);
+            pstmt.executeUpdate();
+            
+            // Refresh the display
+            loadShoppingList();
+        } catch (java.sql.SQLException e) {
+            System.err.println("Error clearing shopping list: " + e.getMessage());
+        }
     }
     
     private void handleClearAllItems(String itemName, List<Ingredient> ingredients) {

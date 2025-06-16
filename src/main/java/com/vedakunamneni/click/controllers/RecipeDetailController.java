@@ -182,6 +182,16 @@ public class RecipeDetailController implements Initializable {
     }
 
     @FXML
+    private void goToShoppingList() throws IOException {
+        App.setRoot("shopping_list");
+    }
+
+    @FXML
+    private void goToFavorites() throws IOException {
+        App.setRoot("favorites");
+    }
+
+    @FXML
     private void handleLogout() throws IOException {
         SessionManager.logout();
         App.setRoot("start");

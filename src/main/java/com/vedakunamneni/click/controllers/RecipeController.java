@@ -28,9 +28,13 @@ public class RecipeController implements Initializable {
     @FXML
     private VBox recipeBox;
 
+    @FXML
+    private VBox shoppingListContainer;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         loadRecipes();
+        loadShoppingList();
     }
 
     private void loadRecipes() {
@@ -79,6 +83,9 @@ public class RecipeController implements Initializable {
             scrollPane.setStyle("-fx-background-color: transparent;");
             
             recipeBox.getChildren().add(scrollPane);
+            
+            // Add Favorites Section
+            loadFavoritesSection();
             
             // Add "Show All Recipes" button
             Button showAllButton = new Button("Browse All Recipes");
@@ -286,5 +293,102 @@ public class RecipeController implements Initializable {
     private void handleLogout() throws IOException {
         SessionManager.logout();
         App.setRoot("start");
+    }
+
+    private void loadFavoritesSection() {
+        String currentUser = SessionManager.getCurrentUser();
+        if (currentUser == null) return;
+        
+        List<String> favoriteRecipes = DatabaseHelper.getFavoriteRecipes(currentUser);
+        
+        if (!favoriteRecipes.isEmpty()) {
+            // Add spacing
+            VBox spacingBox = new VBox();
+            spacingBox.setPrefHeight(30);
+            recipeBox.getChildren().add(spacingBox);
+            
+            // Create favorites section
+            VBox favoritesSection = new VBox(15);
+            favoritesSection.getStyleClass().add("favorites-section");
+            
+            Label favoritesTitle = new Label("⭐ Your Favorite Recipes");
+            favoritesTitle.getStyleClass().add("favorites-title");
+            favoritesSection.getChildren().add(favoritesTitle);
+            
+            VBox favoritesContainer = new VBox(8);
+            
+            for (String recipeName : favoriteRecipes) {
+                HBox favoriteItem = new HBox(10);
+                favoriteItem.getStyleClass().add("favorite-recipe-item");
+                favoriteItem.setStyle("-fx-alignment: center-left;");
+                
+                Label nameLabel = new Label(recipeName);
+                nameLabel.getStyleClass().add("favorite-recipe-name");
+                
+                // Add spacer
+                javafx.scene.layout.Region spacer = new javafx.scene.layout.Region();
+                HBox.setHgrow(spacer, javafx.scene.layout.Priority.ALWAYS);
+                
+                Button removeButton = new Button("✕");
+                removeButton.getStyleClass().add("favorite-recipe-remove");
+                removeButton.setOnAction(e -> {
+                    DatabaseHelper.removeFromFavorites(currentUser, recipeName);
+                    loadRecipes(); // Refresh the page
+                    loadShoppingList(); // Refresh shopping list too
+                });
+                
+                favoriteItem.getChildren().addAll(nameLabel, spacer, removeButton);
+                favoritesContainer.getChildren().add(favoriteItem);
+            }
+            
+            favoritesSection.getChildren().add(favoritesContainer);
+            recipeBox.getChildren().add(favoritesSection);
+        }
+    }
+
+    private void loadShoppingList() {
+        if (shoppingListContainer == null) return;
+        
+        String userEmail = SessionManager.getCurrentUser();
+        if (userEmail == null) return;
+        
+        shoppingListContainer.getChildren().clear();
+        
+        java.util.List<String> shoppingList = DatabaseHelper.getShoppingList(userEmail);
+        
+        if (shoppingList.isEmpty()) {
+            javafx.scene.control.Label emptyLabel = new javafx.scene.control.Label("Your shopping list is empty");
+            emptyLabel.setStyle("-fx-text-fill: #9ca3af; -fx-font-style: italic; -fx-font-size: 12px;");
+            shoppingListContainer.getChildren().add(emptyLabel);
+        } else {
+            for (String item : shoppingList) {
+                javafx.scene.layout.VBox itemBox = new javafx.scene.layout.VBox(3);
+                itemBox.getStyleClass().add("shopping-list-item");
+                
+                javafx.scene.control.Label itemLabel = new javafx.scene.control.Label(item);
+                itemLabel.getStyleClass().add("shopping-list-item-text");
+                
+                itemBox.getChildren().add(itemLabel);
+                shoppingListContainer.getChildren().add(itemBox);
+            }
+        }
+    }
+
+    @FXML
+    private void clearShoppingList() {
+        String userEmail = SessionManager.getCurrentUser();
+        if (userEmail == null) return;
+        
+        // Clear shopping list from database
+        try (java.sql.Connection conn = java.sql.DriverManager.getConnection("jdbc:sqlite:ecopantry.db");
+             java.sql.PreparedStatement pstmt = conn.prepareStatement("DELETE FROM shopping_list WHERE user_email = ?")) {
+            pstmt.setString(1, userEmail);
+            pstmt.executeUpdate();
+            
+            // Refresh the display
+            loadShoppingList();
+        } catch (java.sql.SQLException e) {
+            System.err.println("Error clearing shopping list: " + e.getMessage());
+        }
     }
 }

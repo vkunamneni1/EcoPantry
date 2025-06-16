@@ -29,10 +29,33 @@
 
     <!-- Main Recipe Content -->
     <center>
-        <ScrollPane fitToWidth="true" styleClass="content-area">
-            <VBox fx:id="recipeBox" spacing="20" styleClass="recipe-container">
-                <!-- Content will be dynamically loaded -->
+        <HBox spacing="20">
+            <!-- Main content area -->
+            <ScrollPane fitToWidth="true" styleClass="content-area" HBox.hgrow="ALWAYS">
+                <VBox fx:id="recipeBox" spacing="20" styleClass="recipe-container">
+                    <!-- Content will be dynamically loaded -->
+                </VBox>
+            </ScrollPane>
+            
+            <!-- Shopping List Sidebar -->
+            <VBox spacing="15" styleClass="shopping-list-sidebar" prefWidth="280" maxWidth="280">
+                <padding>
+                    <Insets top="20" left="20" bottom="20" right="20" />
+                </padding>
+                
+                <Label styleClass="shopping-list-title" text="🛒 Shopping List" />
+                
+                <ScrollPane fitToWidth="true" styleClass="shopping-list-scroll" VBox.vgrow="ALWAYS">
+                    <VBox fx:id="shoppingListContainer" spacing="8">
+                        <padding>
+                            <Insets top="10" left="5" bottom="10" right="5" />
+                        </padding>
+                        <!-- Shopping list items will be added dynamically -->
+                    </VBox>
+                </ScrollPane>
+                
+                <Button text="🗑️ Clear List" styleClass="clear-shopping-list-btn" onAction="#clearShoppingList"/>
             </VBox>
-        </ScrollPane>
+        </HBox>
     </center>
 </BorderPane>

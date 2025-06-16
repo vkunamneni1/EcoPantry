@@ -2,12 +2,14 @@
 /Users/vedakunamneni/Documents/java_repo/EcoPantry/src/main/java/com/vedakunamneni/click/services/RecipeService.java
 /Users/vedakunamneni/Documents/java_repo/EcoPantry/src/main/java/com/vedakunamneni/click/controllers/LoginController.java
 /Users/vedakunamneni/Documents/java_repo/EcoPantry/src/main/java/com/vedakunamneni/click/models/Recipe.java
+/Users/vedakunamneni/Documents/java_repo/EcoPantry/src/main/java/com/vedakunamneni/click/controllers/FavoritesController.java
 /Users/vedakunamneni/Documents/java_repo/EcoPantry/src/main/java/com/vedakunamneni/click/controllers/StatisticsController.java
 /Users/vedakunamneni/Documents/java_repo/EcoPantry/src/main/java/com/vedakunamneni/click/controllers/RegisterUserController.java
 /Users/vedakunamneni/Documents/java_repo/EcoPantry/src/main/java/com/vedakunamneni/click/App.java
 /Users/vedakunamneni/Documents/java_repo/EcoPantry/src/main/java/com/vedakunamneni/db/DatabaseHelper.java
 /Users/vedakunamneni/Documents/java_repo/EcoPantry/src/main/java/module-info.java
 /Users/vedakunamneni/Documents/java_repo/EcoPantry/src/main/java/com/vedakunamneni/click/controllers/ScannerController.java
+/Users/vedakunamneni/Documents/java_repo/EcoPantry/src/main/java/com/vedakunamneni/click/controllers/ShoppingListController.java
 /Users/vedakunamneni/Documents/java_repo/EcoPantry/src/main/java/com/vedakunamneni/click/controllers/RecipeDetailController.java
 /Users/vedakunamneni/Documents/java_repo/EcoPantry/src/main/java/com/vedakunamneni/click/controllers/StartController.java
 /Users/vedakunamneni/Documents/java_repo/EcoPantry/src/main/java/com/vedakunamneni/click/controllers/InventoryController.java

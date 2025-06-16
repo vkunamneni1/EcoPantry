@@ -4,6 +4,7 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
@@ -32,7 +33,9 @@
 
     <!-- Main Content -->
     <center>
-        <VBox spacing="20" styleClass="main-area">
+        <HBox spacing="20">
+            <!-- Main dashboard content -->
+            <VBox spacing="20" styleClass="main-area" HBox.hgrow="ALWAYS">
             <padding>
                 <Insets bottom="40" left="40" right="40" top="40" />
             </padding>
@@ -64,6 +67,27 @@
                     <Button onAction="#goToRecipes" styleClass="action-button" text="💡 Get Recipe Ideas" />
                 </HBox>
             </VBox>
-        </VBox>
+            </VBox>
+            
+            <!-- Shopping List Sidebar -->
+            <VBox spacing="15" styleClass="shopping-list-sidebar" prefWidth="280" maxWidth="280">
+                <padding>
+                    <Insets top="40" left="20" bottom="40" right="20" />
+                </padding>
+                
+                <Label styleClass="shopping-list-title" text="🛒 Shopping List" />
+                
+                <ScrollPane fitToWidth="true" styleClass="shopping-list-scroll" VBox.vgrow="ALWAYS">
+                    <VBox fx:id="shoppingListContainer" spacing="8">
+                        <padding>
+                            <Insets top="10" left="5" bottom="10" right="5" />
+                        </padding>
+                        <!-- Shopping list items will be added dynamically -->
+                    </VBox>
+                </ScrollPane>
+                
+                <Button text="🗑️ Clear List" styleClass="clear-shopping-list-btn" onAction="#clearShoppingList"/>
+            </VBox>
+        </HBox>
     </center>
 </BorderPane>

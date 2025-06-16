@@ -842,7 +842,26 @@ public class DatabaseHelper {
         
         return shoppingList;
     }
-    
+
+    public static java.util.List<String> getFavoriteRecipes(String userEmail) {
+        java.util.List<String> favoriteRecipes = new java.util.ArrayList<>();
+        String sql = "SELECT recipe_name FROM favorite_recipes WHERE user_email = ? ORDER BY date_favorited DESC";
+        
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, userEmail);
+            ResultSet rs = pstmt.executeQuery();
+            
+            while (rs.next()) {
+                favoriteRecipes.add(rs.getString("recipe_name"));
+            }
+        } catch (SQLException e) {
+            System.err.println("Error getting favorite recipes: " + e.getMessage());
+        }
+        
+        return favoriteRecipes;
+    }
+
     // Favorite Recipes methods
     public static boolean addToFavorites(String userEmail, String recipeName, String recipeData) {
         String sql = "INSERT OR REPLACE INTO favorite_recipes (user_email, recipe_name, recipe_data) VALUES (?, ?, ?)";

@@ -20,6 +20,8 @@
             <Button text="Inventory" styleClass="nav-button" onAction="#goToInventory"/>
             <Button text="Recipes" styleClass="nav-button selected" onAction="#goToRecipes"/>
             <Button text="Scanner" styleClass="nav-button" onAction="#goToScanner"/>
+            <Button text="Shopping List" styleClass="nav-button" onAction="#goToShoppingList"/>
+            <Button text="Favorites" styleClass="nav-button" onAction="#goToFavorites"/>
             <Button text="Statistics" styleClass="nav-button"/>
             <Separator />
             <Button text="Logout" onAction="#handleLogout" styleClass="nav-button"/>
