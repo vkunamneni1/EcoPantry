@@ -70,6 +70,9 @@ public class StatisticsController {
 
         System.out.println("StatisticsController: Loading statistics for user: " + userEmail);
         
+        // Debug: Show all statistics in database
+        DatabaseHelper.debugFoodStatistics(userEmail);
+        
         List<Ingredient> inventory = DatabaseHelper.getUserInventory(userEmail);
         Map<String, Integer> persistentStats = DatabaseHelper.getFoodStatistics(userEmail);
         Map<String, Object> detailedStats = DatabaseHelper.getDetailedStatistics(userEmail);
@@ -190,14 +193,17 @@ public class StatisticsController {
     private double calculateEfficiencyScore(int foodSaved, int foodWasted) {
         int total = foodSaved + foodWasted;
         if (total == 0) {
-            return 0.0; // No data means 0% efficiency, not perfect score
+            return 100.0; // Perfect score if no items have been tracked yet
+        }
+        if (foodWasted == 0) {
+            return 100.0; // Perfect score if no food has been wasted
         }
         return (double) foodSaved / total * 100.0;
     }
 
     private String getEfficiencyMessage(double score) {
-        if (score == 0.0) {
-            return "Start tracking your food usage!";
+        if (score == 100.0) {
+            return "Perfect! No food wasted!";
         } else if (score >= 90) {
             return "Excellent! You're a food waste warrior!";
         } else if (score >= 75) {

@@ -39,6 +39,14 @@
                     <!-- Dynamic inventory items will be added here -->
                 </VBox>
             </ScrollPane>
+            
+            <!-- Clear All Button -->
+            <HBox alignment="BOTTOM_RIGHT" spacing="10">
+                <padding>
+                    <Insets top="10" left="15" bottom="30" right="30"/>
+                </padding>
+                <Button fx:id="clearAllInventoryButton" text="🗑️ Clear All Items" styleClass="clear-all-btn" onAction="#handleClearAllInventory"/>
+            </HBox>
         </VBox>
     </center>
 </BorderPane>

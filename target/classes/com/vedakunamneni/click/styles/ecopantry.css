@@ -533,3 +533,22 @@
     -fx-background-color: #b91c1c;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 6, 0.15, 0, 3);
 }
+
+/* Clear All Button */
+.clear-all-btn {
+    -fx-background-color: #dc2626;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-padding: 12 20;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 4, 0.1, 0, 2);
+}
+
+.clear-all-btn:hover {
+    -fx-background-color: #b91c1c;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 6, 0.15, 0, 3);
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+}

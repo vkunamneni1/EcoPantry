@@ -241,12 +241,14 @@ public class InventoryController implements Initializable {
         if (result.isPresent()) {
             if (result.get() == usedButton) {
                 // Remove all items as used
+                System.out.println("InventoryController: Clearing all items as USED");
                 for (Ingredient ingredient : ingredients) {
                     DatabaseHelper.removeFromInventoryWithTracking(ingredient.getId(), true);
                 }
                 loadUserInventory(); // Refresh the list
             } else if (result.get() == wastedButton) {
                 // Remove all items as wasted
+                System.out.println("InventoryController: Clearing all items as WASTED");
                 for (Ingredient ingredient : ingredients) {
                     DatabaseHelper.removeFromInventoryWithTracking(ingredient.getId(), false);
                 }
@@ -336,9 +338,11 @@ public class InventoryController implements Initializable {
             if (result.get() == usedButton || result.get() == wastedButton) {
                 if (quantityToRemove == ingredient.getQuantity()) {
                     // Remove entire item
+                    System.out.println("InventoryController: Removing entire item with tracking - wasUsed: " + wasUsed);
                     DatabaseHelper.removeFromInventoryWithTracking(ingredient.getId(), wasUsed);
                 } else {
                     // Reduce quantity
+                    System.out.println("InventoryController: Reducing quantity and tracking - wasUsed: " + wasUsed);
                     int newQuantity = ingredient.getQuantity() - quantityToRemove;
                     DatabaseHelper.updateInventoryQuantity(ingredient.getId(), newQuantity);
                     
@@ -347,10 +351,54 @@ public class InventoryController implements Initializable {
                     if (userEmail != null) {
                         String status = wasUsed ? "USED" : "WASTED";
                         int daysUntilExpiration = (int) ingredient.getDaysUntilExpiration();
+                        System.out.println("InventoryController: About to track statistic - " + status);
                         DatabaseHelper.trackFoodStatistic(userEmail, ingredient.getName(), quantityToRemove, status, daysUntilExpiration);
                     }
                 }
                 loadUserInventory(); // Refresh the list
+            }
+        }
+    }
+
+    @FXML
+    private void handleClearAllInventory() {
+        String userEmail = SessionManager.getCurrentUser();
+        if (userEmail == null) {
+            return;
+        }
+        
+        // Show confirmation dialog
+        javafx.scene.control.Alert confirmAlert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.CONFIRMATION);
+        confirmAlert.setTitle("Clear All Inventory");
+        confirmAlert.setHeaderText("Are you sure you want to clear your entire inventory?");
+        confirmAlert.setContentText("This will permanently delete ALL items from your pantry. This action cannot be undone.");
+        
+        // Add custom buttons
+        javafx.scene.control.ButtonType confirmButton = new javafx.scene.control.ButtonType("Yes, Clear All");
+        javafx.scene.control.ButtonType cancelButton = javafx.scene.control.ButtonType.CANCEL;
+        
+        confirmAlert.getButtonTypes().setAll(confirmButton, cancelButton);
+        
+        java.util.Optional<javafx.scene.control.ButtonType> result = confirmAlert.showAndWait();
+        if (result.isPresent() && result.get() == confirmButton) {
+            boolean success = DatabaseHelper.clearAllInventory(userEmail);
+            if (success) {
+                // Show success message
+                javafx.scene.control.Alert successAlert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION);
+                successAlert.setTitle("Inventory Cleared");
+                successAlert.setHeaderText("Success!");
+                successAlert.setContentText("Your entire inventory has been cleared successfully. You earned points for this action!");
+                successAlert.showAndWait();
+                
+                // Refresh the inventory display
+                loadUserInventory();
+            } else {
+                // Show error message
+                javafx.scene.control.Alert errorAlert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.ERROR);
+                errorAlert.setTitle("Error");
+                errorAlert.setHeaderText("Failed to clear inventory");
+                errorAlert.setContentText("An error occurred while clearing your inventory. Please try again.");
+                errorAlert.showAndWait();
             }
         }
     }

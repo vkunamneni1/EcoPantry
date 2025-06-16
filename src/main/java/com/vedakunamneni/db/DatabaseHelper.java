@@ -73,6 +73,30 @@ public class DatabaseHelper {
                 System.out.println("Added security_answer column to users table");
             }
             
+            // Check if points and level columns exist, if not add them
+            ResultSet pointsRs = stmt.executeQuery("PRAGMA table_info(users)");
+            boolean hasPoints = false;
+            boolean hasLevel = false;
+            
+            while (pointsRs.next()) {
+                String columnName = pointsRs.getString("name");
+                if ("points".equals(columnName)) {
+                    hasPoints = true;
+                } else if ("level".equals(columnName)) {
+                    hasLevel = true;
+                }
+            }
+            
+            if (!hasPoints) {
+                stmt.execute("ALTER TABLE users ADD COLUMN points INTEGER DEFAULT 0");
+                System.out.println("Added points column to users table");
+            }
+            
+            if (!hasLevel) {
+                stmt.execute("ALTER TABLE users ADD COLUMN level INTEGER DEFAULT 1");
+                System.out.println("Added level column to users table");
+            }
+            
             System.out.println("Database initialized successfully");
         } catch (SQLException e) {
             System.err.println("Error initializing database: " + e.getMessage());
@@ -184,8 +208,14 @@ public class DatabaseHelper {
             pstmt.setInt(3, quantity);
             pstmt.setString(4, expirationDate.toString());
             int rowsAffected = pstmt.executeUpdate();
-            System.out.println("Added " + ingredientName + " to inventory for " + userEmail);
-            return rowsAffected > 0;
+            
+            if (rowsAffected > 0) {
+                // Award points for adding items: 5 points per item
+                addPoints(userEmail, quantity * 5, "adding " + quantity + " " + ingredientName + " to inventory");
+                System.out.println("Added " + ingredientName + " to inventory for " + userEmail);
+                return true;
+            }
+            return false;
         } catch (SQLException e) {
             System.err.println("Error adding to inventory: " + e.getMessage());
             e.printStackTrace();
@@ -379,6 +409,13 @@ public class DatabaseHelper {
     
     // Statistics tracking methods
     public static boolean trackFoodStatistic(String userEmail, String ingredientName, int quantity, String status, int daysUntilExpiration) {
+        System.out.println("=== TRACKING FOOD STATISTIC ===");
+        System.out.println("User: " + userEmail);
+        System.out.println("Ingredient: " + ingredientName);
+        System.out.println("Quantity: " + quantity);
+        System.out.println("Status: " + status);
+        System.out.println("Days until expiration: " + daysUntilExpiration);
+        
         String sql = "INSERT INTO food_statistics (user_email, ingredient_name, quantity, status, days_until_expiration) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = DriverManager.getConnection(DB_URL);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -388,61 +425,124 @@ public class DatabaseHelper {
             pstmt.setString(4, status);
             pstmt.setInt(5, daysUntilExpiration);
             int rowsAffected = pstmt.executeUpdate();
+            
+            if (rowsAffected > 0) {
+                // Award points based on food usage
+                if ("USED".equals(status)) {
+                    // Award more points for using food (10 points per item)
+                    addPoints(userEmail, quantity * 10, "using " + quantity + " " + ingredientName);
+                } else if ("WASTED".equals(status)) {
+                    // Award fewer points for wasting food (2 points per item - still encouraging tracking)
+                    addPoints(userEmail, quantity * 2, "tracking wasted " + quantity + " " + ingredientName);
+                }
+            }
+            
+            System.out.println("Rows affected: " + rowsAffected);
+            System.out.println("=== END TRACKING ===");
+            
             return rowsAffected > 0;
         } catch (SQLException e) {
             System.err.println("Error tracking food statistic: " + e.getMessage());
+            e.printStackTrace();
             return false;
         }
     }
     
     public static boolean removeFromInventoryWithTracking(int inventoryId, boolean wasUsed) {
-        // First get the item details before removing
+        // Use a single connection for the entire transaction
         String getItemSql = "SELECT user_email, ingredient_name, quantity, expiration_date FROM inventory WHERE id = ?";
         String deleteSql = "DELETE FROM inventory WHERE id = ?";
+        String trackSql = "INSERT INTO food_statistics (user_email, ingredient_name, quantity, status, days_until_expiration) VALUES (?, ?, ?, ?, ?)";
         
-        try (Connection conn = DriverManager.getConnection(DB_URL);
-             PreparedStatement getStmt = conn.prepareStatement(getItemSql);
-             PreparedStatement deleteStmt = conn.prepareStatement(deleteSql)) {
+        try (Connection conn = DriverManager.getConnection(DB_URL)) {
+            // Start transaction
+            conn.setAutoCommit(false);
             
-            // Get item details
-            getStmt.setInt(1, inventoryId);
-            ResultSet rs = getStmt.executeQuery();
-            
-            if (rs.next()) {
-                String userEmail = rs.getString("user_email");
-                String ingredientName = rs.getString("ingredient_name");
-                int quantity = rs.getInt("quantity");
-                String expirationDateStr = rs.getString("expiration_date");
-                
-                // Calculate days until expiration
+            try {
+                // Get item details
+                String userEmail = null;
+                String ingredientName = null;
+                int quantity = 0;
                 int daysUntilExpiration = 0;
-                if (expirationDateStr != null) {
-                    try {
-                        java.time.LocalDate expirationDate = java.time.LocalDate.parse(expirationDateStr);
-                        daysUntilExpiration = (int) java.time.temporal.ChronoUnit.DAYS.between(java.time.LocalDate.now(), expirationDate);
-                    } catch (Exception e) {
-                        daysUntilExpiration = 0;
+                
+                try (PreparedStatement getStmt = conn.prepareStatement(getItemSql)) {
+                    getStmt.setInt(1, inventoryId);
+                    ResultSet rs = getStmt.executeQuery();
+                    
+                    if (rs.next()) {
+                        userEmail = rs.getString("user_email");
+                        ingredientName = rs.getString("ingredient_name");
+                        quantity = rs.getInt("quantity");
+                        String expirationDateStr = rs.getString("expiration_date");
+                        
+                        // Calculate days until expiration
+                        if (expirationDateStr != null) {
+                            try {
+                                java.time.LocalDate expirationDate = java.time.LocalDate.parse(expirationDateStr);
+                                daysUntilExpiration = (int) java.time.temporal.ChronoUnit.DAYS.between(java.time.LocalDate.now(), expirationDate);
+                            } catch (Exception e) {
+                                daysUntilExpiration = 0;
+                            }
+                        }
+                    } else {
+                        conn.rollback();
+                        return false; // Item not found
                     }
                 }
                 
-                // Track the statistic
+                // Track the statistic first
                 String status = wasUsed ? "USED" : "WASTED";
-                trackFoodStatistic(userEmail, ingredientName, quantity, status, daysUntilExpiration);
+                System.out.println("=== TRACKING FOOD STATISTIC IN TRANSACTION ===");
+                System.out.println("User: " + userEmail);
+                System.out.println("Ingredient: " + ingredientName);
+                System.out.println("Quantity: " + quantity);
+                System.out.println("Status: " + status);
+                System.out.println("Days until expiration: " + daysUntilExpiration);
+                
+                try (PreparedStatement trackStmt = conn.prepareStatement(trackSql)) {
+                    trackStmt.setString(1, userEmail);
+                    trackStmt.setString(2, ingredientName);
+                    trackStmt.setInt(3, quantity);
+                    trackStmt.setString(4, status);
+                    trackStmt.setInt(5, daysUntilExpiration);
+                    int trackRows = trackStmt.executeUpdate();
+                    System.out.println("Statistics tracking result: " + trackRows + " rows affected");
+                }
                 
                 // Remove from inventory
-                deleteStmt.setInt(1, inventoryId);
-                int rowsAffected = deleteStmt.executeUpdate();
-                return rowsAffected > 0;
+                try (PreparedStatement deleteStmt = conn.prepareStatement(deleteSql)) {
+                    deleteStmt.setInt(1, inventoryId);
+                    int deleteRows = deleteStmt.executeUpdate();
+                    System.out.println("Inventory deletion result: " + deleteRows + " rows affected");
+                    
+                    if (deleteRows > 0) {
+                        // Commit transaction
+                        conn.commit();
+                        System.out.println("Transaction committed successfully!");
+                        return true;
+                    } else {
+                        conn.rollback();
+                        return false;
+                    }
+                }
+                
+            } catch (SQLException e) {
+                System.err.println("Error in transaction, rolling back: " + e.getMessage());
+                conn.rollback();
+                throw e;
             }
             
-            return false;
         } catch (SQLException e) {
             System.err.println("Error removing from inventory with tracking: " + e.getMessage());
+            e.printStackTrace();
             return false;
         }
     }
     
     public static java.util.Map<String, Integer> getFoodStatistics(String userEmail) {
+        System.out.println("=== GETTING FOOD STATISTICS ===");
+        System.out.println("User: " + userEmail);
+        
         java.util.Map<String, Integer> stats = new java.util.HashMap<>();
         String sql = "SELECT status, SUM(quantity) as total FROM food_statistics WHERE user_email = ? GROUP BY status";
         
@@ -451,13 +551,19 @@ public class DatabaseHelper {
             pstmt.setString(1, userEmail);
             ResultSet rs = pstmt.executeQuery();
             
+            System.out.println("Query results:");
             while (rs.next()) {
                 String status = rs.getString("status");
                 int total = rs.getInt("total");
                 stats.put(status, total);
+                System.out.println("Status: " + status + ", Total: " + total);
             }
+            
+            System.out.println("Final stats map: " + stats);
+            System.out.println("=== END GETTING STATISTICS ===");
         } catch (SQLException e) {
             System.err.println("Error getting food statistics: " + e.getMessage());
+            e.printStackTrace();
         }
         
         return stats;
@@ -511,5 +617,171 @@ public class DatabaseHelper {
         }
         
         return detailedStats;
+    }
+
+    public static boolean updateUserPassword(String email, String newPassword) {
+        String sql = "UPDATE users SET password = ? WHERE email = ?";
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, newPassword);
+            pstmt.setString(2, email);
+            int rowsAffected = pstmt.executeUpdate();
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            System.err.println("Error updating user password: " + e.getMessage());
+            return false;
+        }
+    }
+
+    // Debug method to show all food statistics in the database
+    public static void debugFoodStatistics(String userEmail) {
+        System.out.println("=== DEBUG: ALL FOOD STATISTICS FOR USER " + userEmail + " ===");
+        String sql = "SELECT * FROM food_statistics WHERE user_email = ? ORDER BY date_tracked DESC";
+        
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, userEmail);
+            ResultSet rs = pstmt.executeQuery();
+            
+            int count = 0;
+            while (rs.next()) {
+                count++;
+                System.out.println("Record " + count + ":");
+                System.out.println("  ID: " + rs.getInt("id"));
+                System.out.println("  Ingredient: " + rs.getString("ingredient_name"));
+                System.out.println("  Quantity: " + rs.getInt("quantity"));
+                System.out.println("  Status: " + rs.getString("status"));
+                System.out.println("  Date: " + rs.getString("date_tracked"));
+                System.out.println("  Days until expiration: " + rs.getInt("days_until_expiration"));
+                System.out.println();
+            }
+            
+            if (count == 0) {
+                System.out.println("NO RECORDS FOUND!");
+            } else {
+                System.out.println("Total records: " + count);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error in debug: " + e.getMessage());
+            e.printStackTrace();
+        }
+        System.out.println("=== END DEBUG ===");
+    }
+    
+    // Level and Points System Methods
+    public static void addPoints(String userEmail, int points, String reason) {
+        String selectSql = "SELECT points, level FROM users WHERE email = ?";
+        String updateSql = "UPDATE users SET points = ?, level = ? WHERE email = ?";
+        
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             PreparedStatement selectStmt = conn.prepareStatement(selectSql);
+             PreparedStatement updateStmt = conn.prepareStatement(updateSql)) {
+            
+            // Get current points and level
+            selectStmt.setString(1, userEmail);
+            ResultSet rs = selectStmt.executeQuery();
+            
+            if (rs.next()) {
+                int currentPoints = rs.getInt("points");
+                int currentLevel = rs.getInt("level");
+                int newPoints = currentPoints + points;
+                int newLevel = calculateLevel(newPoints);
+                
+                boolean leveledUp = newLevel > currentLevel;
+                
+                // Update points and level
+                updateStmt.setInt(1, newPoints);
+                updateStmt.setInt(2, newLevel);
+                updateStmt.setString(3, userEmail);
+                updateStmt.executeUpdate();
+                
+                System.out.println("Points added: +" + points + " for " + reason);
+                System.out.println("Total points: " + newPoints + " | Level: " + newLevel);
+                
+                if (leveledUp) {
+                    System.out.println("🎉 LEVEL UP! You reached level " + newLevel + "!");
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error adding points: " + e.getMessage());
+        }
+    }
+    
+    public static int calculateLevel(int points) {
+        // Level system: Each level requires more points than the previous
+        // Level 1: 0-99 points
+        // Level 2: 100-299 points  
+        // Level 3: 300-599 points
+        // Level 4: 600-999 points
+        // Level 5: 1000-1499 points
+        // And so on...
+        if (points < 100) return 1;
+        if (points < 300) return 2;
+        if (points < 600) return 3;
+        if (points < 1000) return 4;
+        if (points < 1500) return 5;
+        if (points < 2100) return 6;
+        if (points < 2800) return 7;
+        if (points < 3600) return 8;
+        if (points < 4500) return 9;
+        if (points < 5500) return 10;
+        return 10 + (points - 5500) / 1000; // Level 11+ needs 1000 points each
+    }
+    
+    public static int getPointsForNextLevel(int currentPoints) {
+        int currentLevel = calculateLevel(currentPoints);
+        int nextLevel = currentLevel + 1;
+        
+        // Calculate points needed for next level
+        if (nextLevel == 2) return 100 - currentPoints;
+        if (nextLevel == 3) return 300 - currentPoints;
+        if (nextLevel == 4) return 600 - currentPoints;
+        if (nextLevel == 5) return 1000 - currentPoints;
+        if (nextLevel == 6) return 1500 - currentPoints;
+        if (nextLevel == 7) return 2100 - currentPoints;
+        if (nextLevel == 8) return 2800 - currentPoints;
+        if (nextLevel == 9) return 3600 - currentPoints;
+        if (nextLevel == 10) return 4500 - currentPoints;
+        if (nextLevel == 11) return 5500 - currentPoints;
+        
+        // For level 11+
+        int nextLevelPoints = 5500 + (nextLevel - 11) * 1000;
+        return nextLevelPoints - currentPoints;
+    }
+    
+    public static int[] getUserPointsAndLevel(String userEmail) {
+        String sql = "SELECT points, level FROM users WHERE email = ?";
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, userEmail);
+            ResultSet rs = pstmt.executeQuery();
+            
+            if (rs.next()) {
+                return new int[]{rs.getInt("points"), rs.getInt("level")};
+            }
+        } catch (SQLException e) {
+            System.err.println("Error getting user points and level: " + e.getMessage());
+        }
+        return new int[]{0, 1}; // Default values
+    }
+
+    public static boolean clearAllInventory(String userEmail) {
+        String sql = "DELETE FROM inventory WHERE user_email = ?";
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, userEmail);
+            int rowsAffected = pstmt.executeUpdate();
+            
+            if (rowsAffected > 0) {
+                System.out.println("Cleared " + rowsAffected + " items from inventory for " + userEmail);
+                // Award small points for clearing inventory (1 point per item cleared)
+                addPoints(userEmail, rowsAffected, "clearing " + rowsAffected + " items from inventory");
+            }
+            
+            return rowsAffected >= 0; // Return true even if no items were deleted
+        } catch (SQLException e) {
+            System.err.println("Error clearing inventory: " + e.getMessage());
+            return false;
+        }
     }
 }
