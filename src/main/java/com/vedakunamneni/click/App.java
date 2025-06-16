@@ -2,8 +2,6 @@ package com.vedakunamneni.click;
 
 import java.io.IOException;
 
-import com.vedakunamneni.db.DatabaseHelper;
-
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -17,7 +15,7 @@ public class App extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         scene = new Scene(loadFXML("start"), 800, 600); // your original homepage
-        DatabaseHelper.registerUser("test", "test");
+        // Removed test user registration - users should register through the UI
         stage.setTitle("EcoPantry");
         stage.setScene(scene);
         stage.show();
