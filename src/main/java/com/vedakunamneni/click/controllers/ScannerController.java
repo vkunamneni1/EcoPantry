@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Arrays;
-import java.util.regex.Pattern;
 
 import com.vedakunamneni.click.App;
 import com.vedakunamneni.click.SessionManager;
@@ -587,16 +586,39 @@ public class ScannerController {
         // Hide the ingredients section if no ingredients are left
         ingredientsSection.setVisible(false);
         ingredientsSection.setManaged(false);
+        
+        // Reset the upload section to default state
+        resetUploadSection();
+        
+        // Clear the uploaded file reference
+        uploadedReceiptFile = null;
     }
 
     private void resetScanner() {
         ingredientsSection.setVisible(false);
         ingredientsSection.setManaged(false);
-        dropZone.getChildren().clear();
-        Label defaultLabel = new Label("Drag and Drop a file here or click to upload");
-        defaultLabel.getStyleClass().add("drop-text");
-        dropZone.getChildren().add(defaultLabel);
+        resetUploadSection();
         ingredientCheckBoxes.clear();
+    }
+
+    private void resetUploadSection() {
+        // Reset dropZone to its default state (as it appears when page first loads)
+        dropZone.getChildren().clear();
+        
+        // Add the default elements back
+        Label iconLabel = new Label("📄");
+        iconLabel.setStyle("-fx-font-size: 48px;");
+        
+        Label mainLabel = new Label("Drag & Drop Receipt Here");
+        mainLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
+        
+        Label subLabel = new Label("or click to browse files");
+        subLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #666;");
+        
+        Label formatLabel = new Label("Supports: JPG, PNG, PDF");
+        formatLabel.setStyle("-fx-font-size: 10px; -fx-text-fill: #999;");
+        
+        dropZone.getChildren().addAll(iconLabel, mainLabel, subLabel, formatLabel);
     }
 
     private void showAlert(String title, String message) {
