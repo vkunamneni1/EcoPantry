@@ -12,10 +12,13 @@ import com.vedakunamneni.click.models.Recipe;
 import com.vedakunamneni.click.services.RecipeService;
 import com.vedakunamneni.db.DatabaseHelper;
 
+import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.TilePane;
@@ -43,12 +46,64 @@ public class RecipeController implements Initializable {
             return;
         }
 
-        // Get user's inventory
-        List<Ingredient> userIngredients = DatabaseHelper.getUserInventory(currentUser);
+        // Show loading screen
+        showLoadingScreen();
+
+        // Create background task for recipe fetching
+        Task<List<Recipe>> recipeTask = new Task<List<Recipe>>() {
+            @Override
+            protected List<Recipe> call() throws Exception {
+                // Get user's inventory
+                List<Ingredient> userIngredients = DatabaseHelper.getUserInventory(currentUser);
+                // Get recipes based on user's ingredients (this might take time)
+                return RecipeService.getRecipesForIngredients(userIngredients);
+            }
+            
+            @Override
+            protected void succeeded() {
+                Platform.runLater(() -> {
+                    List<Recipe> recommendedRecipes = getValue();
+                    // Get user's inventory again for display
+                    List<Ingredient> userIngredients = DatabaseHelper.getUserInventory(currentUser);
+                    displayRecipes(recommendedRecipes, userIngredients);
+                });
+            }
+            
+            @Override
+            protected void failed() {
+                Platform.runLater(() -> {
+                    showRecipeErrorMessage();
+                });
+            }
+        };
         
-        // Get recipes based on user's ingredients
-        List<Recipe> recommendedRecipes = RecipeService.getRecipesForIngredients(userIngredients);
+        // Run the task in background thread
+        Thread recipeThread = new Thread(recipeTask);
+        recipeThread.setDaemon(true);
+        recipeThread.start();
+    }
+    
+    private void showLoadingScreen() {
+        recipeBox.getChildren().clear();
         
+        VBox loadingBox = new VBox(20);
+        loadingBox.setAlignment(javafx.geometry.Pos.CENTER);
+        loadingBox.getStyleClass().add("loading-container");
+        
+        ProgressIndicator progressIndicator = new ProgressIndicator();
+        progressIndicator.setMaxSize(60, 60);
+        
+        Label loadingLabel = new Label("Loading delicious recipes...");
+        loadingLabel.getStyleClass().add("loading-title");
+        
+        Label subLabel = new Label("Finding recipes based on your ingredients");
+        subLabel.getStyleClass().add("loading-subtitle");
+        
+        loadingBox.getChildren().addAll(progressIndicator, loadingLabel, subLabel);
+        recipeBox.getChildren().add(loadingBox);
+    }
+    
+    private void displayRecipes(List<Recipe> recommendedRecipes, List<Ingredient> userIngredients) {
         // Clear existing content
         recipeBox.getChildren().clear();
         
@@ -205,10 +260,41 @@ public class RecipeController implements Initializable {
     }
     
     private void showAllRecipes() {
+        // Show loading screen
+        showLoadingScreen();
+        
+        // Create background task for fetching all recipes
+        Task<List<Recipe>> allRecipesTask = new Task<List<Recipe>>() {
+            @Override
+            protected List<Recipe> call() throws Exception {
+                return RecipeService.getRandomRecipes(20);
+            }
+            
+            @Override
+            protected void succeeded() {
+                Platform.runLater(() -> {
+                    List<Recipe> allRecipes = getValue();
+                    displayAllRecipes(allRecipes);
+                });
+            }
+            
+            @Override
+            protected void failed() {
+                Platform.runLater(() -> {
+                    showRecipeErrorMessage();
+                });
+            }
+        };
+        
+        // Run the task in background thread
+        Thread allRecipesThread = new Thread(allRecipesTask);
+        allRecipesThread.setDaemon(true);
+        allRecipesThread.start();
+    }
+    
+    private void displayAllRecipes(List<Recipe> allRecipes) {
         // Clear and show all recipes regardless of user ingredients
         recipeBox.getChildren().clear();
-        
-        List<Recipe> allRecipes = RecipeService.getAllRecipes();
         
         // Create title
         Label titleLabel = new Label("All Recipes");
@@ -266,6 +352,28 @@ public class RecipeController implements Initializable {
         
         noRecipesBox.getChildren().addAll(noRecipesLabel, suggestionLabel, browseAllButton);
         recipeBox.getChildren().add(noRecipesBox);
+    }
+    
+    private void showRecipeErrorMessage() {
+        recipeBox.getChildren().clear();
+        
+        VBox errorBox = new VBox(15);
+        errorBox.setAlignment(javafx.geometry.Pos.CENTER);
+        errorBox.getStyleClass().add("error-container");
+        
+        Label errorLabel = new Label("⚠️ Failed to Load Recipes");
+        errorLabel.getStyleClass().add("error-title");
+        
+        Label messageLabel = new Label("Unable to connect to recipe service. Please check your internet connection and try again.");
+        messageLabel.getStyleClass().add("error-message");
+        messageLabel.setWrapText(true);
+        
+        Button retryButton = new Button("Retry");
+        retryButton.getStyleClass().add("retry-button");
+        retryButton.setOnAction(e -> loadRecipes());
+        
+        errorBox.getChildren().addAll(errorLabel, messageLabel, retryButton);
+        recipeBox.getChildren().add(errorBox);
     }
     
     @FXML

@@ -49,6 +49,22 @@ public class Recipe {
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
     
+    // Helper method to set ID from String (for API responses)
+    public void setId(String idString) {
+        if (idString == null || idString.trim().isEmpty()) {
+            // Generate a random ID if the string is null or empty
+            this.id = (int) (Math.random() * 1000000);
+            return;
+        }
+        
+        try {
+            this.id = Integer.parseInt(idString.trim());
+        } catch (NumberFormatException e) {
+            // If the ID is not a valid integer, use hashCode of the string
+            this.id = idString.hashCode();
+        }
+    }
+    
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
     
@@ -77,7 +93,6 @@ public class Recipe {
     public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
     
     public int getServings() { return servings; }
-    public void setServings(int servings) { this.servings = servings; }
     
     public String getCookingTimeFormatted() {
         if (cookingTimeMinutes < 60) {

@@ -684,3 +684,60 @@
 .favorite-recipe-remove:hover {
     -fx-text-fill: #dc2626;
 }
+
+/* Loading screen styles */
+.loading-container {
+    -fx-background-color: #ffffff;
+    -fx-padding: 50px;
+    -fx-alignment: center;
+    -fx-spacing: 20px;
+    -fx-background-radius: 12px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);
+}
+
+.loading-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2E7D32;
+}
+
+.loading-subtitle {
+    -fx-font-size: 14px;
+    -fx-text-fill: #666666;
+    -fx-text-alignment: center;
+}
+
+.error-container {
+    -fx-background-color: #ffffff;
+    -fx-padding: 50px;
+    -fx-alignment: center;
+    -fx-spacing: 15px;
+    -fx-background-radius: 12px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);
+}
+
+.error-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #D32F2F;
+}
+
+.error-message {
+    -fx-font-size: 14px;
+    -fx-text-fill: #666666;
+    -fx-text-alignment: center;
+    -fx-wrap-text: true;
+}
+
+.retry-button {
+    -fx-background-color: #2E7D32;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-padding: 10px 20px;
+    -fx-cursor: hand;
+    -fx-background-radius: 8px;
+}
+
+.retry-button:hover {
+    -fx-background-color: #1B5E20;
+}
