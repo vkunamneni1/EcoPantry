@@ -237,9 +237,15 @@ public class ScannerController {
 
     @FXML
     private void clearAllIngredients() {
-        for (CheckBox checkBox : ingredientCheckBoxes) {
-            checkBox.setSelected(false);
-        }
+        // Clear the ingredients display
+        ingredientsBox.getChildren().clear();
+        ingredientCheckBoxes.clear();
+        ingredientDatePickers.clear();
+        ingredientQuantityFields.clear();
+        
+        // Hide the ingredients section if no ingredients are left
+        ingredientsSection.setVisible(false);
+        ingredientsSection.setManaged(false);
     }
 
     private void resetScanner() {
