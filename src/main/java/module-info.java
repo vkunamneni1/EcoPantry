@@ -4,6 +4,7 @@ module com.vedakunamneni.click {
     requires java.net.http;
     requires com.google.gson;
     requires java.sql;
+    requires java.desktop;
 
     opens com.vedakunamneni.click to javafx.fxml, com.google.gson;
     opens com.vedakunamneni.click.controllers to javafx.fxml;
