@@ -1,7 +1,9 @@
 package com.vedakunamneni.click.controllers;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.List;
+import java.util.ResourceBundle;
 
 import com.vedakunamneni.click.App;
 import com.vedakunamneni.click.SessionManager;
@@ -14,12 +16,10 @@ import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import java.net.URL;
-import java.util.ResourceBundle;
 
 public class InventoryController implements Initializable {
 

@@ -1,7 +1,9 @@
 package com.vedakunamneni.click.controllers;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.List;
+import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
 import com.vedakunamneni.click.App;
@@ -19,8 +21,6 @@ import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import java.net.URL;
-import java.util.ResourceBundle;
 
 public class RecipeDetailController implements Initializable {
 
@@ -179,16 +179,6 @@ public class RecipeDetailController implements Initializable {
     @FXML
     private void goToScanner() throws IOException {
         App.setRoot("scanner");
-    }
-
-    @FXML
-    private void goToShoppingList() throws IOException {
-        App.setRoot("shopping_list");
-    }
-
-    @FXML
-    private void goToFavorites() throws IOException {
-        App.setRoot("favorites");
     }
 
     @FXML

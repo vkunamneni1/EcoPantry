@@ -1,7 +1,9 @@
 package com.vedakunamneni.click.controllers;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.List;
+import java.util.ResourceBundle;
 
 import com.vedakunamneni.click.App;
 import com.vedakunamneni.click.SessionManager;
@@ -12,7 +14,6 @@ import com.vedakunamneni.db.DatabaseHelper;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
@@ -20,8 +21,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import java.net.URL;
-import java.util.ResourceBundle;
 
 public class RecipeController implements Initializable {
 

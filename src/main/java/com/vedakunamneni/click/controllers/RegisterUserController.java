@@ -1,10 +1,11 @@
 package com.vedakunamneni.click.controllers;
 
 import java.io.IOException;
+import java.net.URL;
 import java.security.SecureRandom;
+import java.util.ResourceBundle;
 
 import com.vedakunamneni.click.App;
-import com.vedakunamneni.click.SessionManager;
 import com.vedakunamneni.db.DatabaseHelper;
 
 import javafx.fxml.FXML;
@@ -15,8 +16,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.paint.Color;
-import java.net.URL;
-import java.util.ResourceBundle;
 
 public class RegisterUserController implements Initializable {
     @FXML

@@ -9,7 +9,6 @@ import java.util.Map;
 
 import com.vedakunamneni.click.App;
 import com.vedakunamneni.click.SessionManager;
-import com.vedakunamneni.click.models.Ingredient;
 import com.vedakunamneni.db.DatabaseHelper;
 
 import javafx.fxml.FXML;
