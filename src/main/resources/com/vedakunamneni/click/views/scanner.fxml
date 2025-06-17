@@ -30,24 +30,55 @@
 
     <!-- Main Scanner Content -->
     <center>
-        <VBox alignment="CENTER" spacing="30" styleClass="scanner-container">
-            <Label text="Upload a Receipt" styleClass="page-title"/>
-            <VBox fx:id="dropZone" styleClass="drop-zone" alignment="CENTER">
-                <Label text="Drag and Drop a file here or click to upload" styleClass="drop-text"/>
-            </VBox>
-            
-            <!-- Ingredients Section -->
-            <VBox fx:id="ingredientsSection" spacing="15" visible="false" managed="false">
-                <Label text="Detected Ingredients:" styleClass="section-title"/>
-                <ScrollPane prefHeight="300" fitToWidth="true">
-                    <VBox fx:id="ingredientsBox" spacing="10"/>
-                </ScrollPane>
-                <HBox spacing="15" alignment="CENTER">
-                    <Button fx:id="addSelectedButton" text="Add Selected to Inventory" styleClass="action-button" onAction="#addSelectedToInventory"/>
-                    <Button text="Select All" styleClass="secondary-button" onAction="#selectAllIngredients"/>
-                    <Button text="Clear All" styleClass="secondary-button" onAction="#clearAllIngredients"/>
-                </HBox>
-            </VBox>
+        <VBox spacing="20.0" styleClass="main-content">
+            <children>
+                <Label styleClass="page-title" text="Receipt Scanner" />
+                
+                <!-- Upload Section -->
+                <VBox spacing="15.0" alignment="CENTER">
+                    <children>
+                        <Label text="Upload your grocery receipt to automatically detect ingredients" styleClass="subtitle" />
+                        
+                        <VBox fx:id="dropZone" styleClass="drop-zone" alignment="CENTER" spacing="10.0" 
+                              prefHeight="150.0" prefWidth="400.0">
+                            <children>
+                                <Label text="📄" style="-fx-font-size: 48px;" />
+                                <Label text="Drag &amp; Drop Receipt Here" style="-fx-font-size: 16px; -fx-font-weight: bold;" />
+                                <Label text="or click to browse files" style="-fx-font-size: 12px; -fx-text-fill: #666;" />
+                                <Label text="Supports: JPG, PNG, PDF" style="-fx-font-size: 10px; -fx-text-fill: #999;" />
+                            </children>
+                        </VBox>
+                    </children>
+                </VBox>
+                
+                <!-- Ingredients Section -->
+                <VBox fx:id="ingredientsSection" spacing="15.0" visible="false" managed="false">
+                    <children>
+                        <Label text="Detected Ingredients:" styleClass="section-title"/>
+                        
+                        <ScrollPane prefHeight="300.0" fitToWidth="true" styleClass="ingredients-scroll">
+                            <content>
+                                <VBox fx:id="ingredientsBox" spacing="10.0">
+                                    <padding>
+                                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                    </padding>
+                                </VBox>
+                            </content>
+                        </ScrollPane>
+                        
+                        <HBox spacing="15.0" alignment="CENTER">
+                            <children>
+                                <Button fx:id="addSelectedButton" text="Add Selected to Inventory" styleClass="action-button" onAction="#addSelectedToInventory"/>
+                                <Button text="Select All" styleClass="secondary-button" onAction="#selectAllIngredients"/>
+                                <Button text="Clear All" styleClass="secondary-button" onAction="#clearAllIngredients"/>
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+            </children>
+            <padding>
+                <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+            </padding>
         </VBox>
     </center>
 </BorderPane>

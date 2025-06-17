@@ -1,11 +1,14 @@
 package com.vedakunamneni.click.controllers;
 
+import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Arrays;
+import java.util.regex.Pattern;
 
 import com.vedakunamneni.click.App;
 import com.vedakunamneni.click.SessionManager;
@@ -22,6 +25,7 @@ import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
 
 public class ScannerController {
 
@@ -40,9 +44,44 @@ public class ScannerController {
     private List<CheckBox> ingredientCheckBoxes = new ArrayList<>();
     private Map<CheckBox, DatePicker> ingredientDatePickers = new HashMap<>();
     private Map<CheckBox, TextField> ingredientQuantityFields = new HashMap<>();
+    private File uploadedReceiptFile;
+
+    // Common food items that might appear on receipts
+    private static final List<String> COMMON_FOOD_ITEMS = Arrays.asList(
+        // Fruits
+        "apple", "apples", "banana", "bananas", "orange", "oranges", "grape", "grapes", 
+        "strawberry", "strawberries", "blueberry", "blueberries", "lemon", "lemons", 
+        "lime", "limes", "avocado", "avocados", "mango", "mangos", "pineapple", 
+        "watermelon", "cantaloupe", "peach", "peaches", "pear", "pears",
+        
+        // Vegetables  
+        "tomato", "tomatoes", "potato", "potatoes", "onion", "onions", "carrot", "carrots",
+        "broccoli", "spinach", "lettuce", "cucumber", "cucumbers", "bell pepper", "peppers",
+        "celery", "mushroom", "mushrooms", "zucchini", "squash", "cabbage", "kale",
+        "garlic", "ginger", "cilantro", "parsley", "basil", "green beans", "corn",
+        
+        // Proteins
+        "chicken", "beef", "pork", "fish", "salmon", "turkey", "ham", "bacon", "sausage",
+        "ground beef", "chicken breast", "pork chops", "steak", "eggs", "tofu",
+        
+        // Dairy
+        "milk", "cheese", "yogurt", "butter", "cream", "sour cream", "cottage cheese",
+        "cheddar", "mozzarella", "parmesan", "swiss cheese",
+        
+        // Pantry items
+        "bread", "rice", "pasta", "flour", "sugar", "salt", "pepper", "oil", "olive oil",
+        "vinegar", "honey", "oats", "cereal", "crackers", "beans", "lentils", "quinoa",
+        
+        // Beverages & Others
+        "juice", "coffee", "tea", "soup", "sauce", "salsa", "nuts", "almonds", "peanuts"
+    );
 
     @FXML
     public void initialize() {
+        setupDropZone();
+    }
+
+    private void setupDropZone() {
         dropZone.setOnDragOver(e -> {
             if (e.getGestureSource() != dropZone && e.getDragboard().hasFiles()) {
                 e.acceptTransferModes(TransferMode.COPY);
@@ -54,39 +93,198 @@ public class ScannerController {
             Dragboard db = e.getDragboard();
             boolean success = false;
             if (db.hasFiles()) {
-                success = true;
-                processReceipt();
+                File file = db.getFiles().get(0);
+                if (isImageFile(file)) {
+                    success = true;
+                    uploadedReceiptFile = file;
+                    processReceipt(file);
+                } else {
+                    showAlert("Invalid File", "Please upload an image file (JPG, PNG, PDF)");
+                }
             }
             e.setDropCompleted(success);
             e.consume();
         });
 
         dropZone.setOnMouseClicked(e -> {
-            processReceipt(); // Simulated upload click
+            openFileChooser();
         });
     }
 
-    private void processReceipt() {
-        // For now, show mock ingredients - later this would integrate with OCR
-        showDetectedIngredients();
+    private void openFileChooser() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Select Receipt Image");
+        fileChooser.getExtensionFilters().addAll(
+            new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg"),
+            new FileChooser.ExtensionFilter("PDF Files", "*.pdf"),
+            new FileChooser.ExtensionFilter("All Files", "*.*")
+        );
+        
+        File selectedFile = fileChooser.showOpenDialog(dropZone.getScene().getWindow());
+        if (selectedFile != null) {
+            uploadedReceiptFile = selectedFile;
+            processReceipt(selectedFile);
+        }
     }
 
-    private void showDetectedIngredients() {
+    private boolean isImageFile(File file) {
+        String name = file.getName().toLowerCase();
+        return name.endsWith(".jpg") || name.endsWith(".jpeg") || 
+               name.endsWith(".png") || name.endsWith(".pdf");
+    }
+
+    private void processReceipt(File receiptFile) {
+        // Show processing message
+        dropZone.getChildren().clear();
+        Label processingLabel = new Label("🔍 Processing receipt...");
+        processingLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: #2196F3;");
+        dropZone.getChildren().add(processingLabel);
+        
+        // Simulate processing delay and then extract ingredients
+        new Thread(() -> {
+            try {
+                Thread.sleep(1500); // Simulate processing time
+                
+                // Extract text from receipt (simplified simulation)
+                String receiptText = simulateOCR(receiptFile);
+                
+                // Extract ingredients from text
+                List<String> detectedIngredients = extractIngredientsFromText(receiptText);
+                
+                // Update UI on JavaFX thread
+                javafx.application.Platform.runLater(() -> {
+                    showDetectedIngredients(detectedIngredients);
+                });
+                
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }).start();
+    }
+
+    private String simulateOCR(File receiptFile) {
+        // In a real implementation, this would use an OCR service like Tesseract, 
+        // Google Cloud Vision API, or AWS Textract
+        // For now, we'll simulate realistic receipt text
+        
+        String fileName = receiptFile.getName().toLowerCase();
+        
+        // Return different mock receipt texts based on filename or random selection
+        String[] mockReceipts = {
+            "WHOLE FOODS MARKET\n" +
+            "ORGANIC BANANAS         $3.49\n" +
+            "ROMA TOMATOES          $2.99\n" +
+            "FRESH SPINACH          $4.29\n" +
+            "CHICKEN BREAST         $8.99\n" +
+            "WHOLE MILK             $3.79\n" +
+            "CHEDDAR CHEESE         $5.49\n" +
+            "BREAD WHOLE WHEAT      $2.99\n" +
+            "OLIVE OIL EXTRA        $7.99\n" +
+            "GARLIC BULBS           $1.49\n" +
+            "BROCCOLI CROWNS        $3.99",
+            
+            "SAFEWAY STORE #1234\n" +
+            "GROUND BEEF 85/15      $6.99\n" +
+            "YELLOW ONIONS          $1.99\n" +
+            "BELL PEPPERS           $3.49\n" +
+            "MUSHROOMS WHITE        $2.79\n" +
+            "PASTA PENNE            $1.99\n" +
+            "MARINARA SAUCE         $2.49\n" +
+            "PARMESAN CHEESE        $4.99\n" +
+            "LETTUCE ROMAINE        $2.99\n" +
+            "CUCUMBERS              $1.79\n" +
+            "EGGS LARGE DOZEN       $3.29",
+            
+            "TRADER JOES\n" +
+            "AVOCADOS HASS          $3.99\n" +
+            "KALE ORGANIC           $2.49\n" +
+            "SWEET POTATOES         $2.99\n" +
+            "SALMON FILLET          $12.99\n" +
+            "QUINOA TRICOLOR        $4.49\n" +
+            "ALMOND BUTTER          $7.99\n" +
+            "COCONUT MILK           $1.99\n" +
+            "BLUEBERRIES FRESH      $4.99\n" +
+            "CARROTS ORGANIC        $1.99\n" +
+            "GREEK YOGURT           $5.99"
+        };
+        
+        // Return a random receipt or based on filename
+        int index = Math.abs(fileName.hashCode()) % mockReceipts.length;
+        return mockReceipts[index];
+    }
+
+    private List<String> extractIngredientsFromText(String receiptText) {
+        List<String> detectedIngredients = new ArrayList<>();
+        String[] lines = receiptText.toLowerCase().split("\n");
+        
+        for (String line : lines) {
+            // Remove price patterns
+            line = line.replaceAll("\\$[0-9]+\\.[0-9]{2}", "").trim();
+            
+            // Check each line against our food items list
+            for (String foodItem : COMMON_FOOD_ITEMS) {
+                if (line.contains(foodItem) && !detectedIngredients.contains(formatIngredientName(foodItem))) {
+                    detectedIngredients.add(formatIngredientName(foodItem));
+                    break; // Only match one item per line
+                }
+            }
+            
+            // Also check for common patterns
+            if (line.contains("organic") || line.contains("fresh") || line.contains("whole")) {
+                // Try to extract the actual ingredient name
+                String cleanedLine = line.replaceAll("(organic|fresh|whole|lb|lbs|each|bag|bunch)", "").trim();
+                if (cleanedLine.length() > 2 && !cleanedLine.matches(".*\\d.*") && !detectedIngredients.contains(cleanedLine)) {
+                    for (String foodItem : COMMON_FOOD_ITEMS) {
+                        if (cleanedLine.contains(foodItem)) {
+                            detectedIngredients.add(formatIngredientName(foodItem));
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        
+        return detectedIngredients;
+    }
+
+    private String formatIngredientName(String ingredient) {
+        // Capitalize first letter and handle plurals
+        String formatted = ingredient.substring(0, 1).toUpperCase() + ingredient.substring(1);
+        
+        // Convert plurals to singular for consistency
+        if (formatted.endsWith("ies")) {
+            formatted = formatted.substring(0, formatted.length() - 3) + "y";
+        } else if (formatted.endsWith("s") && !formatted.endsWith("ss")) {
+            formatted = formatted.substring(0, formatted.length() - 1);
+        }
+        
+        return formatted;
+    }
+
+    private void showDetectedIngredients(List<String> detectedIngredients) {
         ingredientsBox.getChildren().clear();
         ingredientCheckBoxes.clear();
         ingredientDatePickers.clear();
         ingredientQuantityFields.clear();
         
-        // Mock detected ingredients from receipt
-        String[] detectedItems = {
-            "Organic Carrots", "Roma Tomatoes", "Fresh Spinach", "Broccoli Crowns", 
-            "Yellow Onions", "Garlic Bulbs", "Zucchini", "Bell Peppers", 
-            "Green Cabbage", "Baby Kale", "Celery Stalks", "Sweet Potatoes", 
-            "White Mushrooms", "Bananas", "Apples", "Whole Milk", "Large Eggs", 
-            "Cheddar Cheese", "Whole Wheat Bread", "Chicken Breast"
-        };
+        // If no ingredients detected, show message
+        if (detectedIngredients.isEmpty()) {
+            Label noItemsLabel = new Label("⚠️ No food items detected in receipt");
+            noItemsLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #ff6b6b; -fx-padding: 20;");
+            ingredientsBox.getChildren().add(noItemsLabel);
+            
+            Label suggestionLabel = new Label("Try uploading a clearer image or manually add items to your inventory.");
+            suggestionLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #666; -fx-padding: 0 20;");
+            ingredientsBox.getChildren().add(suggestionLabel);
+            
+            // Show ingredients section anyway
+            ingredientsSection.setVisible(true);
+            ingredientsSection.setManaged(true);
+            return;
+        }
         
-        for (String item : detectedItems) {
+        // Create UI elements for each detected ingredient
+        for (String item : detectedIngredients) {
             VBox itemBox = new VBox(5);
             itemBox.setStyle("-fx-border-color: #e0e0e0; -fx-border-radius: 5; -fx-padding: 10; -fx-background-color: #f9f9f9; -fx-background-radius: 5;");
             
@@ -139,7 +337,13 @@ public class ScannerController {
         dropZone.getChildren().clear();
         Label successLabel = new Label("✅ Receipt processed successfully!");
         successLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: green;");
-        dropZone.getChildren().add(successLabel);
+        Label detectedLabel = new Label("Found " + detectedIngredients.size() + " food items");
+        detectedLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #666;");
+        
+        VBox successBox = new VBox(5);
+        successBox.getChildren().addAll(successLabel, detectedLabel);
+        successBox.setStyle("-fx-alignment: center;");
+        dropZone.getChildren().add(successBox);
     }
     
     private int getDefaultExpirationDays(String ingredient) {
