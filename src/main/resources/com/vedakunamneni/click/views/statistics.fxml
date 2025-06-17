@@ -14,6 +14,7 @@
             <Button mnemonicParsing="false" onAction="#goToInventory" prefWidth="180.0" styleClass="sidebar-btn" text="Inventory" />
             <Button mnemonicParsing="false" onAction="#goToScanner" prefWidth="180.0" styleClass="sidebar-btn" text="Scanner" />
             <Button mnemonicParsing="false" onAction="#goToRecipes" prefWidth="180.0" styleClass="sidebar-btn" text="Recipes" />
+            <Button mnemonicParsing="false" onAction="#goToShoppingList" prefWidth="180.0" styleClass="sidebar-btn" text="Shopping List" />
             <Button mnemonicParsing="false" prefWidth="180.0" styleClass="sidebar-btn-active" text="Statistics" />
             <Region VBox.vgrow="ALWAYS" />
             <Button mnemonicParsing="false" onAction="#logout" prefWidth="180.0" styleClass="sidebar-btn-logout" text="Logout" />

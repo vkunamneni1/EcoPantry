@@ -823,6 +823,54 @@ public class DatabaseHelper {
         }
     }
     
+    public static java.util.List<com.vedakunamneni.click.controllers.ShoppingListController.ShoppingListItem> getShoppingListWithIds(String userEmail) {
+        java.util.List<com.vedakunamneni.click.controllers.ShoppingListController.ShoppingListItem> shoppingList = new java.util.ArrayList<>();
+        String sql = "SELECT id, ingredient_name, recipe_name FROM shopping_list WHERE user_email = ? AND is_purchased = FALSE ORDER BY date_added ASC";
+        
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, userEmail);
+            ResultSet rs = pstmt.executeQuery();
+            
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                String ingredient = rs.getString("ingredient_name");
+                String recipe = rs.getString("recipe_name");
+                shoppingList.add(new com.vedakunamneni.click.controllers.ShoppingListController.ShoppingListItem(id, ingredient, recipe));
+            }
+        } catch (SQLException e) {
+            System.err.println("Error getting shopping list with IDs: " + e.getMessage());
+        }
+        
+        return shoppingList;
+    }
+    
+    public static boolean removeFromShoppingList(int shoppingListId) {
+        String sql = "DELETE FROM shopping_list WHERE id = ?";
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, shoppingListId);
+            int rowsAffected = pstmt.executeUpdate();
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            System.err.println("Error removing from shopping list: " + e.getMessage());
+            return false;
+        }
+    }
+    
+    public static boolean clearShoppingList(String userEmail) {
+        String sql = "DELETE FROM shopping_list WHERE user_email = ?";
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, userEmail);
+            int rowsAffected = pstmt.executeUpdate();
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            System.err.println("Error clearing shopping list: " + e.getMessage());
+            return false;
+        }
+    }
+
     public static java.util.List<String> getShoppingList(String userEmail) {
         java.util.List<String> shoppingList = new java.util.ArrayList<>();
         String sql = "SELECT ingredient_name, recipe_name FROM shopping_list WHERE user_email = ? AND is_purchased = FALSE ORDER BY date_added ASC";

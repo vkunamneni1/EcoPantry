@@ -376,6 +376,7 @@ public class RecipeController implements Initializable {
         recipeBox.getChildren().add(errorBox);
     }
     
+    // Navigation methods
     @FXML
     private void goToDashboard() throws IOException {
         App.setRoot("dashboard");
@@ -384,6 +385,11 @@ public class RecipeController implements Initializable {
     @FXML
     private void goToInventory() throws IOException {
         App.setRoot("inventory");
+    }
+
+    @FXML
+    private void goToShoppingList() throws IOException {
+        App.setRoot("shopping_list");
     }
 
     @FXML

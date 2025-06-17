@@ -302,6 +302,11 @@ public class StatisticsController {
     }
 
     @FXML
+    private void goToShoppingList() throws IOException {
+        App.setRoot("shopping_list");
+    }
+
+    @FXML
     private void logout() throws IOException {
         SessionManager.logout();
         App.setRoot("start");

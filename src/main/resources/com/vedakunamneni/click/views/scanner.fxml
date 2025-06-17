@@ -19,6 +19,7 @@
             <Button text="Dashboard" styleClass="nav-button" onAction="#goToDashboard"/>
             <Button text="Inventory" styleClass="nav-button" onAction="#goToInventory"/>
             <Button text="Recipes" styleClass="nav-button" onAction="#goToRecipes"/>
+            <Button text="Shopping List" styleClass="nav-button" onAction="#goToShoppingList"/>
             <Button text="Scanner" styleClass="nav-button selected"/>
             <Button text="Statistics" styleClass="nav-button" onAction="#goToStatistics"/>
             <Separator />

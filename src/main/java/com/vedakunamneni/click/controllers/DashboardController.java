@@ -166,6 +166,11 @@ public class DashboardController {
     }
 
     @FXML
+    private void goToShoppingList() throws IOException {
+        App.setRoot("shopping_list");
+    }
+
+    @FXML
     private void goToStatistics() throws IOException {
         App.setRoot("statistics");
     }
