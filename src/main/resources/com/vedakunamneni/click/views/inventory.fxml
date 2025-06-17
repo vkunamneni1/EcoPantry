@@ -11,20 +11,21 @@
 
     <!-- Sidebar -->
     <left>
-        <VBox spacing="16" alignment="TOP_CENTER" styleClass="sidebar">
+        <VBox alignment="TOP_CENTER" prefWidth="200.0" spacing="10.0" styleClass="sidebar">
+            <children>
+                <Label styleClass="sidebar-title" text="EcoPantry" />
+                <Button mnemonicParsing="false" onAction="#goToDashboard" prefWidth="180.0" styleClass="sidebar-btn" text="Dashboard" />
+                <Button mnemonicParsing="false" prefWidth="180.0" styleClass="sidebar-btn-active" text="Inventory" />
+                <Button mnemonicParsing="false" onAction="#goToRecipes" prefWidth="180.0" styleClass="sidebar-btn" text="Recipes" />
+                <Button mnemonicParsing="false" onAction="#goToShoppingList" prefWidth="180.0" styleClass="sidebar-btn" text="Shopping List" />
+                <Button mnemonicParsing="false" onAction="#goToScanner" prefWidth="180.0" styleClass="sidebar-btn" text="Scanner" />
+                <Button mnemonicParsing="false" onAction="#goToStatistics" prefWidth="180.0" styleClass="sidebar-btn" text="Statistics" />
+                <Region VBox.vgrow="ALWAYS" />
+                <Button mnemonicParsing="false" onAction="#handleLogout" prefWidth="180.0" styleClass="sidebar-btn-logout" text="Logout" />
+            </children>
             <padding>
-                <Insets top="30" left="15" bottom="30" right="15"/>
+                <Insets bottom="20.0" left="10.0" right="10.0" top="20.0" />
             </padding>
-            <Label text="🌱 EcoPantry" styleClass="nav-title"/>
-            <Separator />
-            <Button text="Dashboard" styleClass="nav-button" onAction="#goToDashboard"/>
-            <Button text="Inventory" styleClass="nav-button selected"/>
-            <Button text="Recipes" styleClass="nav-button" onAction="#goToRecipes"/>
-            <Button text="Shopping List" styleClass="nav-button" onAction="#goToShoppingList"/>
-            <Button text="Scanner" styleClass="nav-button" onAction="#goToScanner"/>
-            <Button text="Statistics" styleClass="nav-button" onAction="#goToStatistics"/>
-            <Separator />
-            <Button text="Logout" onAction="#handleLogout" styleClass="nav-button" />
         </VBox>
     </left>
 

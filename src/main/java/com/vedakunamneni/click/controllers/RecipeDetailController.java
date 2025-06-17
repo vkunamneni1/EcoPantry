@@ -177,8 +177,18 @@ public class RecipeDetailController implements Initializable {
     }
 
     @FXML
+    private void goToShoppingList() throws IOException {
+        App.setRoot("shopping_list");
+    }
+
+    @FXML
     private void goToScanner() throws IOException {
         App.setRoot("scanner");
+    }
+
+    @FXML
+    private void goToStatistics() throws IOException {
+        App.setRoot("statistics");
     }
 
     @FXML

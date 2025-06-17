@@ -8,27 +8,28 @@
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
 <BorderPane prefHeight="800" prefWidth="1280" stylesheets="@../styles/ecopantry.css" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/23.0.1" fx:controller="com.vedakunamneni.click.controllers.DashboardController">
 
     <!-- Sidebar -->
     <left>
-        <VBox alignment="TOP_CENTER" spacing="16" styleClass="sidebar">
+        <VBox alignment="TOP_CENTER" prefWidth="200.0" spacing="10.0" styleClass="sidebar">
+            <children>
+                <Label styleClass="sidebar-title" text="EcoPantry" />
+                <Button mnemonicParsing="false" prefWidth="180.0" styleClass="sidebar-btn-active" text="Dashboard" />
+                <Button mnemonicParsing="false" onAction="#goToInventory" prefWidth="180.0" styleClass="sidebar-btn" text="Inventory" />
+                <Button mnemonicParsing="false" onAction="#goToRecipes" prefWidth="180.0" styleClass="sidebar-btn" text="Recipes" />
+                <Button mnemonicParsing="false" onAction="#goToShoppingList" prefWidth="180.0" styleClass="sidebar-btn" text="Shopping List" />
+                <Button mnemonicParsing="false" onAction="#goToScanner" prefWidth="180.0" styleClass="sidebar-btn" text="Scanner" />
+                <Button mnemonicParsing="false" onAction="#goToStatistics" prefWidth="180.0" styleClass="sidebar-btn" text="Statistics" />
+                <Region VBox.vgrow="ALWAYS" />
+                <Button mnemonicParsing="false" onAction="#handleLogout" prefWidth="180.0" styleClass="sidebar-btn-logout" text="Logout" />
+            </children>
             <padding>
-                <Insets bottom="30" left="15" right="15" top="30" />
+                <Insets bottom="20.0" left="10.0" right="10.0" top="20.0" />
             </padding>
-            <Label styleClass="nav-title" text="🌱 EcoPantry" />
-            <Separator />
-            <Button styleClass="nav-button selected" text="Dashboard" />
-            <Button onAction="#goToInventory" styleClass="nav-button" text="Inventory" />
-            <Button onAction="#goToRecipes" styleClass="nav-button" text="Recipes" />
-            <Button onAction="#goToShoppingList" styleClass="nav-button" text="Shopping List" />
-            <Button onAction="#goToScanner" styleClass="nav-button" text="Scanner" />
-            <Button onAction="#goToStatistics" styleClass="nav-button" text="Statistics" />
-            <Separator />
-            <Button onAction="#handleLogout" styleClass="nav-button" text="Logout" />
-            <Label styleClass="footer-label" text="JAVA FINAL PROJECT" />
         </VBox>
     </left>
 

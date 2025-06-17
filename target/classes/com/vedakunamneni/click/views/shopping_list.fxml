@@ -11,47 +11,52 @@
 
     <!-- Sidebar -->
     <left>
-        <VBox spacing="16" alignment="TOP_CENTER" styleClass="sidebar">
+        <VBox alignment="TOP_CENTER" prefWidth="200.0" spacing="10.0" styleClass="sidebar">
+            <children>
+                <Label styleClass="sidebar-title" text="EcoPantry" />
+                <Button mnemonicParsing="false" onAction="#goToDashboard" prefWidth="180.0" styleClass="sidebar-btn" text="Dashboard" />
+                <Button mnemonicParsing="false" onAction="#goToInventory" prefWidth="180.0" styleClass="sidebar-btn" text="Inventory" />
+                <Button mnemonicParsing="false" onAction="#goToRecipes" prefWidth="180.0" styleClass="sidebar-btn" text="Recipes" />
+                <Button mnemonicParsing="false" prefWidth="180.0" styleClass="sidebar-btn-active" text="Shopping List" />
+                <Button mnemonicParsing="false" onAction="#goToScanner" prefWidth="180.0" styleClass="sidebar-btn" text="Scanner" />
+                <Button mnemonicParsing="false" onAction="#goToStatistics" prefWidth="180.0" styleClass="sidebar-btn" text="Statistics" />
+                <Region VBox.vgrow="ALWAYS" />
+                <Button mnemonicParsing="false" onAction="#handleLogout" prefWidth="180.0" styleClass="sidebar-btn-logout" text="Logout" />
+            </children>
             <padding>
-                <Insets top="30" left="15" bottom="30" right="15"/>
+                <Insets bottom="20.0" left="10.0" right="10.0" top="20.0" />
             </padding>
-            <Label text="🌱 EcoPantry" styleClass="nav-title"/>
-            <Separator />
-            <Button text="Dashboard" styleClass="nav-button" onAction="#goToDashboard"/>
-            <Button text="Inventory" styleClass="nav-button" onAction="#goToInventory"/>
-            <Button text="Recipes" styleClass="nav-button" onAction="#goToRecipes"/>
-            <Button text="Shopping List" styleClass="nav-button selected"/>
-            <Button text="Scanner" styleClass="nav-button" onAction="#goToScanner"/>
-            <Button text="Statistics" styleClass="nav-button" onAction="#goToStatistics"/>
-            <Separator />
-            <Button text="Logout" onAction="#handleLogout" styleClass="nav-button" />
-            <Label text="JAVA FINAL PROJECT" styleClass="footer-label"/>
         </VBox>
     </left>
 
     <!-- Main Content -->
     <center>
-        <HBox spacing="20">
-            <!-- Main shopping list content -->
-            <VBox spacing="20" styleClass="main-area dashboard-content" HBox.hgrow="ALWAYS">
-                <Label text="My Shopping List" styleClass="page-title"/>
-                <Label text="Manage your shopping list items with dropdown actions" styleClass="subtitle"/>
+        <VBox spacing="20.0" styleClass="main-content">
+            <children>
+                <Label styleClass="page-title" text="Shopping List" />
                 
                 <!-- Actions Bar -->
-                <HBox alignment="CENTER_LEFT" spacing="15">
-                    <Button onAction="#clearAllShoppingList" styleClass="clear-shopping-list-btn" text="Clear All Items" />
+                <HBox alignment="CENTER_LEFT" spacing="15.0">
+                    <children>
+                        <Button mnemonicParsing="false" onAction="#clearAllShoppingList" styleClass="clear-shopping-list-btn" text="Clear All Items" />
+                    </children>
                 </HBox>
                 
                 <!-- Shopping List Container -->
-                <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS">
-                    <VBox fx:id="shoppingListContainer" spacing="10">
-                        <padding>
-                            <Insets top="20" left="15" bottom="20" right="15"/>
-                        </padding>
-                        <!-- Dynamic shopping list items will be added here -->
-                    </VBox>
+                <ScrollPane fitToWidth="true" styleClass="shopping-list-scroll" VBox.vgrow="ALWAYS">
+                    <content>
+                        <VBox fx:id="shoppingListContainer" spacing="10.0">
+                            <padding>
+                                <Insets bottom="20.0" left="20.0" right="20.0" top="10.0" />
+                            </padding>
+                            <!-- Dynamic shopping list items will be added here -->
+                        </VBox>
+                    </content>
                 </ScrollPane>
-            </VBox>
-        </HBox>
+            </children>
+            <padding>
+                <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+            </padding>
+        </VBox>
     </center>
 </BorderPane>
