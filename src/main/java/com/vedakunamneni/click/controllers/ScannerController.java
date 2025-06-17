@@ -216,46 +216,93 @@ public class ScannerController {
         try {
             // First check if we can load the Tesseract classes
             Class.forName("net.sourceforge.tess4j.Tesseract");
+            System.out.println("Tesseract classes found, attempting OCR...");
             return performTesseractOCR(receiptFile);
         } catch (ClassNotFoundException e) {
             // Tesseract not available, use enhanced filename-based processing
-            System.out.println("Tesseract OCR not available, using fallback processing");
+            System.out.println("Tesseract OCR not available, using fallback processing for file: " + receiptFile.getName());
             return performFallbackOCR(receiptFile);
         } catch (Exception e) {
             // OCR failed, use fallback
-            System.err.println("OCR processing failed: " + e.getMessage());
+            System.out.println("OCR processing failed for file " + receiptFile.getName() + ": " + e.getClass().getSimpleName());
+            System.out.println("Falling back to simulated receipt data...");
             return performFallbackOCR(receiptFile);
         }
     }
 
     private String performTesseractOCR(File receiptFile) throws Exception {
+        if (receiptFile == null || !receiptFile.exists()) {
+            throw new Exception("Receipt file is null or does not exist");
+        }
+        
+        if (!isImageFile(receiptFile)) {
+            throw new Exception("File is not a supported image format");
+        }
+        
+        System.out.println("Processing file: " + receiptFile.getAbsolutePath());
+        
+        // Set library path for macOS/Homebrew before loading Tesseract
+        String[] libraryPaths = {
+            "/opt/homebrew/lib",        // Homebrew on Apple Silicon
+            "/usr/local/lib",           // Homebrew on Intel
+            "/usr/lib",                 // System libraries
+        };
+        
+        // Add library paths to jna.library.path
+        StringBuilder jnaPath = new StringBuilder();
+        String currentJnaPath = System.getProperty("jna.library.path", "");
+        if (!currentJnaPath.isEmpty()) {
+            jnaPath.append(currentJnaPath).append(":");
+        }
+        
+        for (String path : libraryPaths) {
+            if (path != null && new File(path).exists()) {
+                jnaPath.append(path).append(":");
+            }
+        }
+        
+        if (jnaPath.length() > 0) {
+            System.setProperty("jna.library.path", jnaPath.toString());
+            System.out.println("Set JNA library path to: " + jnaPath.toString());
+        }
+        
         // Use reflection to avoid compile-time dependency issues
         Class<?> tesseractClass = Class.forName("net.sourceforge.tess4j.Tesseract");
         Object tesseract = tesseractClass.getDeclaredConstructor().newInstance();
         
-        // Set data path if needed (try common locations)
+        // Try to find tessdata directory
+        boolean dataPathSet = false;
         String[] possibleDataPaths = {
             "/opt/homebrew/share/tessdata",  // macOS Homebrew
             "/usr/share/tesseract-ocr/tessdata", // Linux
             "/usr/local/share/tessdata",      // Alternative Linux
+            "/usr/share/tessdata",            // Another common location
             System.getProperty("user.home") + "/tessdata" // User home
         };
         
         for (String dataPath : possibleDataPaths) {
             File dataDir = new File(dataPath);
             if (dataDir.exists() && dataDir.isDirectory()) {
+                System.out.println("Found tessdata at: " + dataPath);
                 tesseractClass.getMethod("setDatapath", String.class).invoke(tesseract, dataPath);
+                dataPathSet = true;
                 break;
             }
+        }
+        
+        if (!dataPathSet) {
+            System.out.println("Warning: No tessdata directory found, Tesseract may not work properly");
         }
         
         // Set language to English
         tesseractClass.getMethod("setLanguage", String.class).invoke(tesseract, "eng");
         
         // Perform OCR
+        System.out.println("Starting OCR processing...");
         String result = (String) tesseractClass.getMethod("doOCR", File.class).invoke(tesseract, receiptFile);
         
         if (result != null && !result.trim().isEmpty()) {
+            System.out.println("OCR successful! Extracted " + result.length() + " characters");
             return result;
         } else {
             throw new Exception("OCR returned empty result");
@@ -264,7 +311,13 @@ public class ScannerController {
 
     private String performFallbackOCR(File receiptFile) {
         // Enhanced fallback that tries to be smarter about filename-based detection
+        if (receiptFile == null) {
+            System.out.println("File is null, using default receipt");
+            return generateGenericStoreReceipt();
+        }
+        
         String fileName = receiptFile.getName().toLowerCase();
+        System.out.println("Using fallback OCR for file: " + fileName);
         
         // Check filename for store hints
         if (fileName.contains("whole") || fileName.contains("foods")) {
@@ -286,7 +339,10 @@ public class ScannerController {
         };
         
         int index = Math.abs(fileName.hashCode()) % mockReceipts.length;
-        return mockReceipts[index];
+        String result = mockReceipts[index];
+        
+        System.out.println("Generated fallback receipt with " + result.length() + " characters");
+        return result;
     }
 
     private String generateWholeFoodsReceipt() {
