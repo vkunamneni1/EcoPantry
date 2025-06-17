@@ -23,6 +23,11 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
+import javafx.animation.Timeline;
+import javafx.animation.KeyFrame;
+import javafx.animation.Animation;
+import javafx.animation.FadeTransition;
+import javafx.util.Duration;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
@@ -134,11 +139,52 @@ public class ScannerController {
     }
 
     private void processReceipt(File receiptFile) {
-        // Show processing message
+        // Show processing message with animation
         dropZone.getChildren().clear();
+        
+        // Create processing container
+        VBox processingContainer = new VBox(15);
+        processingContainer.getStyleClass().add("processing-container");
+        processingContainer.setStyle("-fx-alignment: center;");
+        
+        // Add progress indicator
+        javafx.scene.control.ProgressIndicator progressIndicator = new javafx.scene.control.ProgressIndicator();
+        progressIndicator.getStyleClass().add("loading-progress");
+        progressIndicator.setPrefSize(50, 50);
+        
+        // Add processing label with animation
         Label processingLabel = new Label("🔍 Processing receipt...");
-        processingLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: #2196F3;");
-        dropZone.getChildren().add(processingLabel);
+        processingLabel.getStyleClass().add("loading-text");
+        
+        // Create animated dots for loading effect
+        Timeline timeline = new Timeline();
+        timeline.setCycleCount(Animation.INDEFINITE);
+        
+        KeyFrame keyFrame = new KeyFrame(
+            Duration.seconds(0.5),
+            e -> {
+                String currentText = processingLabel.getText();
+                if (currentText.endsWith("...")) {
+                    processingLabel.setText("🔍 Processing receipt");
+                } else {
+                    processingLabel.setText(currentText + ".");
+                }
+            }
+        );
+        timeline.getKeyFrames().add(keyFrame);
+        timeline.play();
+        
+        processingContainer.getChildren().addAll(progressIndicator, processingLabel);
+        
+        // Add fade-in effect
+        processingContainer.setOpacity(0);
+        dropZone.getChildren().add(processingContainer);
+        
+        // Animate fade-in
+        FadeTransition fadeIn = new FadeTransition(Duration.millis(300), processingContainer);
+        fadeIn.setFromValue(0);
+        fadeIn.setToValue(1);
+        fadeIn.play();
         
         // Simulate processing delay and then extract ingredients
         new Thread(() -> {
@@ -153,10 +199,14 @@ public class ScannerController {
                 
                 // Update UI on JavaFX thread
                 javafx.application.Platform.runLater(() -> {
+                    timeline.stop(); // Stop the loading animation
                     showDetectedIngredients(detectedIngredients);
                 });
                 
             } catch (InterruptedException e) {
+                javafx.application.Platform.runLater(() -> {
+                    timeline.stop(); // Stop animation on error too
+                });
                 Thread.currentThread().interrupt();
             }
         }).start();
