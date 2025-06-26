@@ -13,6 +13,6 @@ Starting off, I made a very simple mockup of what I envision the entire system t
 
 After doing that, I went back to EcoPantry and started to clean it up. This included adding API integrations, fixing bugs, and just making UI look better. **I do not plan on using this version of EcoPantry since it's somewhat vibe coded and not good. I will make a new version with many more parts and features myself based on the current version that fits the needs of this new project.**
 
-!(https://i.ibb.co/HT0syRNV/Eco-Pantry-System-Mockup.jpg)
+![image](https://github.com/user-attachments/assets/78a96427-11fe-4d90-bb52-44d983534e83)
 
 **Total time spent: 5h**
