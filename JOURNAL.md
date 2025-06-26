@@ -1,7 +1,7 @@
 ---
 title: "EcoPantry"
 author: "veds"
-description: "grocery expiration tracking, recipe suggestions, and a Raspberry Pi sensor suite for real-time fridge monitoring"
+description: "JavaFX application with grocery expiration tracking, recipe suggestions, and a Raspberry Pi sensor suite for real-time fridge monitoring"
 created_at: "2025-06-26"
 ---
 
